@@ -218,13 +218,24 @@
                 </div>
             </div>
 
-            <!-- Financials summary card inside drawer -->
-            <div class="grid grid-cols-2 gap-3 mb-5">
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/50">
-                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Single Card Value</span>
-                    <p id="drawer-val" class="text-base font-bold text-amber-400 mt-1">$0.00</p>
+            <!-- Financials summary cards inside drawer with split Lowest / Highest layout -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                    <span class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider block">Lowest Price</span>
+                    <p id="drawer-lowest-val" class="text-sm font-bold text-slate-100 mt-0.5">$0.00</p>
                 </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/50">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-wider block">Highest Price</span>
+                    <p id="drawer-highest-val" class="text-sm font-bold text-slate-100 mt-0.5">$0.00</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800/70">
+                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Est. Avg Unit Price</span>
+                    <p id="drawer-avg-val" class="text-base font-bold text-amber-400 mt-1">$0.00</p>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800/70">
                     <span class="text-[10px] text-slate-500 font-semibold uppercase">Est. Total Valuation</span>
                     <p id="drawer-total-val" class="text-base font-bold text-amber-400 mt-1">$0.00</p>
                 </div>
@@ -270,7 +281,6 @@
             loadDatabase(savedUrl);
         };
 
-        
         // Custom diagnostic log engine
         function logDiagnostic(message, colorClass = "text-slate-400") {
             const container = document.getElementById("diagnostic-log");
@@ -283,7 +293,6 @@
             }
         }
 
-        // Clean numeric and currency format engines with range parsing support
         function cleanNumericValue(str) {
             if (!str) return 0;
             let s = str.trim();
@@ -356,13 +365,15 @@
                 return headers.findIndex(h => possibleNames.includes(h));
             };
 
+            // Mapping to your newly structured 11 headers
             const map = {
                 game: getHeaderIndex(['game']),
                 name: getHeaderIndex(['character / card name', 'character/card name', 'character', 'card name', 'name']),
                 code: getHeaderIndex(['set & card number', 'set&card number', 'set number', 'card number', 'code']),
                 rarity: getHeaderIndex(['rarity']),
                 qty: getHeaderIndex(['qty', 'quantity']),
-                val: getHeaderIndex(['value', 'val', 'est value', 'price', 'valuation']),
+                lowest_price: getHeaderIndex(['lowest price', 'lowest_price', 'low price', 'low_price', 'low']),
+                highest_price: getHeaderIndex(['highest price', 'highest_price', 'high price', 'high_price', 'high']),
                 source: getHeaderIndex(['source', 'purchased source', 'where from']),
                 date: getHeaderIndex(['date', 'catalog date', 'date catalogued']),
                 remark: getHeaderIndex(['remark', 'remarks', 'notes', 'comment']),
@@ -381,20 +392,28 @@
 
                 const cardName = getVal(map.name);
                 if (cardName) {
-                    const rawVal = getVal(map.val);
-                    let numericVal = 0;
-                    
-                    // Support hyphen (-), en-dash (–), em-dash (—), tilde (~), or word "to"
-                    const rangeRegex = /[-\u2013\u2014~]|\bto\b/i;
+                    const rawLowest = getVal(map.lowest_price);
+                    const rawHighest = getVal(map.highest_price);
 
-                    if (rangeRegex.test(rawVal)) {
-                        const parts = rawVal.split(rangeRegex);
-                        const val1 = cleanNumericValue(parts[0]);
-                        const val2 = cleanNumericValue(parts[1]);
-                        // Average calculations for price ranges
-                        numericVal = (val1 + val2) / 2;
+                    const cleanLowest = cleanNumericValue(rawLowest);
+                    const cleanHighest = cleanNumericValue(rawHighest);
+
+                    let numericVal = 0;
+                    let valDisplay = '';
+
+                    // Check which values exist and calculate average if both are present
+                    if (cleanLowest > 0 && cleanHighest > 0) {
+                        numericVal = (cleanLowest + cleanHighest) / 2;
+                        valDisplay = `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} - $${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    } else if (cleanLowest > 0) {
+                        numericVal = cleanLowest;
+                        valDisplay = `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    } else if (cleanHighest > 0) {
+                        numericVal = cleanHighest;
+                        valDisplay = `$${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
                     } else {
-                        numericVal = cleanNumericValue(rawVal);
+                        numericVal = 0;
+                        valDisplay = '$0.00';
                     }
 
                     data.push({
@@ -403,8 +422,10 @@
                         code: getVal(map.code) || 'N/A',
                         rarity: getVal(map.rarity) || 'Common',
                         qty: parseInt(getVal(map.qty).replace(/[^0-9]/g, '')) || 1,
-                        valDisplay: rawVal || '$0.00',
+                        valDisplay: valDisplay,
                         valCalc: numericVal,
+                        lowestDisplay: cleanLowest > 0 ? `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'N/A',
+                        highestDisplay: cleanHighest > 0 ? `$${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'N/A',
                         source: getVal(map.source) || 'Unknown',
                         date: getVal(map.date) || 'Not Dated',
                         remark: getVal(map.remark) || 'None',
@@ -427,7 +448,6 @@
                         if (gidMatches && gidMatches[1]) {
                             gid = gidMatches[1];
                         }
-                        // Format visualization query URL to clean CORS security blockades
                         return `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
                     }
                 }
@@ -467,7 +487,6 @@
                 logDiagnostic("Verify Sheet is set to 'Anyone with the link can view'!", "text-amber-400");
                 warningBox.classList.remove("hidden");
                 
-                // Keep loader visible with helpful fallback info
                 document.getElementById("card-grid").innerHTML = "";
             } finally {
                 loader.classList.add("hidden");
@@ -477,7 +496,6 @@
         function setGameFilter(game) {
             activeGameFilter = game;
             
-            // Style active filter tabs
             const btnAll = document.getElementById("filter-game-ALL");
             const btnPoke = document.getElementById("filter-game-POKEMON");
             const btnNaru = document.getElementById("filter-game-NARUTO");
@@ -533,7 +551,6 @@
             document.getElementById("stat-total-cards").innerText = totalCards;
             document.getElementById("stat-unique-cards").innerText = uniqueCards;
             
-            // Format calculated portfolio value with custom currency layout
             document.getElementById("stat-portfolio-val").innerText = new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD'
@@ -610,8 +627,8 @@
                             <span class="font-bold px-1.5 py-0.5 rounded border ${rStyle.badge}">${card.rarity}</span>
                         </div>
                         <div class="pt-2 flex justify-between items-end border-t border-slate-950 mt-2">
-                            <span class="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">Value</span>
-                            <span class="text-xs font-extrabold text-amber-400">${card.valDisplay}</span>
+                            <span class="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">Price Range</span>
+                            <span class="text-xs font-extrabold text-amber-400 max-w-[65%] truncate">${card.valDisplay}</span>
                         </div>
                     </div>
                 `;
@@ -634,9 +651,17 @@
             rarityBadge.className = `text-xs font-bold px-2.5 py-0.5 rounded border ${rStyle.badge}`;
             
             document.getElementById("drawer-qty-badge").innerText = `Qty: ${card.qty}`;
-            document.getElementById("drawer-val").innerText = card.valDisplay;
             
-            // Format overall portfolio total valuation on a per-card level
+            // Render Lowest & Highest Individual Metrics
+            document.getElementById("drawer-lowest-val").innerText = card.lowestDisplay;
+            document.getElementById("drawer-highest-val").innerText = card.highestDisplay;
+
+            // Render math averages
+            document.getElementById("drawer-avg-val").innerText = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(card.valCalc);
+            
             const totalVal = card.valCalc * card.qty;
             document.getElementById("drawer-total-val").innerText = new Intl.NumberFormat('en-US', {
                 style: 'currency',
@@ -647,13 +672,11 @@
             document.getElementById("drawer-date").innerText = card.date;
             document.getElementById("drawer-remarks").innerText = card.remark;
 
-            // Render artwork inside drawer container
             const imgContainer = document.getElementById("drawer-image-container");
             imgContainer.innerHTML = `
                 <img src="${imageSrc}" alt="${card.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x420/1e293b/475569?text=Image+Error';">
             `;
 
-            // Display slide drawer and dark backdrop overlay
             const drawer = document.getElementById("spec-drawer");
             const backdrop = document.getElementById("backdrop-drawer");
             
