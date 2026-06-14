@@ -38,6 +38,14 @@
         .drawer-slide-up.active {
             transform: translateY(0);
         }
+        /* Pulse anim for AI searching */
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-subtle-pulse {
+            animation: subtle-pulse 2s infinite ease-in-out;
+        }
     </style>
 </head>
 <body class="min-h-screen pb-24">
@@ -45,7 +53,7 @@
     <div class="max-w-md mx-auto px-4 pt-6">
         
         <!-- Header Section -->
-        <header class="flex justify-between items-center mb-6">
+        <header class="flex justify-between items-center mb-5">
             <div>
                 <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-300 tracking-tight">TCG VAULT</h1>
                 <p class="text-xs text-slate-400 mt-0.5">Your Premium Interactive Collection</p>
@@ -63,18 +71,43 @@
             </div>
         </header>
 
-        <section class="grid grid-cols-3 gap-3 mb-6">
+        <!-- Dynamic Counter Row -->
+        <section class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 p-3 rounded-2xl text-center shadow-lg">
                 <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Total Cards</span>
                 <p id="stat-total-cards" class="text-xl font-bold text-slate-100 mt-1">0</p>
             </div>
             <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 p-3 rounded-2xl text-center shadow-lg">
-                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Unique</span>
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Unique Cards</span>
                 <p id="stat-unique-cards" class="text-xl font-bold text-slate-100 mt-1">0</p>
             </div>
-            <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 p-3 rounded-2xl text-center shadow-lg ring-1 ring-amber-500/20">
-                <span class="text-[10px] uppercase tracking-wider font-semibold text-amber-400">Est. Value</span>
-                <p id="stat-portfolio-val" class="text-base font-extrabold text-amber-400 mt-1.5 truncate">$0.00</p>
+        </section>
+
+        <!-- Portfolio Estimation Vault Block -->
+        <section class="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-amber-500/20 p-4 rounded-2xl shadow-xl mb-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl"></div>
+            
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-calculator"></i> Portfolio Valuation Range
+                </span>
+                <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full font-mono uppercase">Est. Value</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3.5 border-b border-slate-800/60 pb-3">
+                <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block">Lowest Estimation</span>
+                    <p id="stat-lowest-val" class="text-lg font-black text-emerald-400 mt-1">$0.00</p>
+                </div>
+                <div class="border-l border-slate-800/60 pl-3.5">
+                    <span class="text-[10px] text-slate-400 font-semibold block">Highest Estimation</span>
+                    <p id="stat-highest-val" class="text-lg font-black text-amber-400 mt-1">$0.00</p>
+                </div>
+            </div>
+
+            <div class="pt-2.5 flex justify-between items-center text-xs">
+                <span class="text-slate-400">Calculated Mid-Point Avg:</span>
+                <span id="stat-avg-val" class="font-extrabold text-slate-100">$0.00</span>
             </div>
         </section>
 
@@ -122,6 +155,7 @@
 
     </div>
 
+    <!-- Image Help Modal -->
     <div id="image-help-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-900 flex justify-between items-center">
@@ -156,6 +190,7 @@
         </div>
     </div>
 
+    <!-- Connection Dialog Modal -->
     <div id="db-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-900 flex justify-between items-center">
@@ -193,16 +228,18 @@
         </div>
     </div>
 
+    <!-- Backdrop overlay for slide-out drawer -->
     <div id="backdrop-drawer" onclick="closeDrawer()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
     
+    <!-- Detailed Collector drawer with AI Price engine -->
     <div id="spec-drawer" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-950 border-t border-slate-800 rounded-t-3xl z-50 drawer-slide-up shadow-2xl overflow-hidden">
         <!-- Drawer indicator pill bar -->
         <div class="flex justify-center py-3">
             <div class="w-12 h-1 bg-slate-800 rounded-full"></div>
         </div>
 
-        <div class="px-5 pb-6 max-h-[80vh] overflow-y-auto">
-            <div class="flex gap-4 items-start mb-5">
+        <div class="px-5 pb-6 max-h-[85vh] overflow-y-auto">
+            <div class="flex gap-4 items-start mb-4">
                 <div id="drawer-image-container" class="w-24 h-32 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center shadow-lg relative">
                     <!-- Image rendering inside slide-up drawer -->
                 </div>
@@ -230,19 +267,36 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mb-5">
-                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800/70">
-                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Est. Avg Unit Price</span>
-                    <p id="drawer-avg-val" class="text-base font-bold text-amber-400 mt-1">$0.00</p>
+            <!-- AI Price Tracker Tool -->
+            <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-satellite-dish animate-pulse"></i> Live Web Pricing
+                    </span>
+                    <span class="text-[9px] text-slate-500 font-mono">Real-Time Search</span>
                 </div>
-                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800/70">
-                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Est. Total Valuation</span>
-                    <p id="drawer-total-val" class="text-base font-bold text-amber-400 mt-1">$0.00</p>
+                
+                <button id="live-price-btn" onclick="fetchLiveMarketPrices()" class="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition shadow-lg shadow-amber-950/10">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Fetch Live Market Prices
+                </button>
+
+                <!-- AI output card result -->
+                <div id="live-price-result" class="hidden mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-300">
+                    <div id="live-price-loader" class="flex flex-col items-center justify-center py-4 space-y-2">
+                        <div class="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-[10px] text-slate-400 animate-subtle-pulse">Searching Google, eBay & TCGPlayer...</p>
+                    </div>
+                    <div id="live-price-content" class="leading-relaxed space-y-2 max-h-40 overflow-y-auto pr-1">
+                        <!-- AI Price text gets injected here -->
+                    </div>
+                    <div id="live-price-sources" class="mt-2.5 pt-2 border-t border-slate-800/40 flex flex-wrap gap-1.5">
+                        <!-- Citations get injected here -->
+                    </div>
                 </div>
             </div>
 
             <!-- Advanced detailed metadata block -->
-            <div class="space-y-3.5 border-t border-slate-900 pt-4 text-xs">
+            <div class="space-y-3.5 border-t border-slate-900 pt-3 text-xs">
                 <div class="flex justify-between items-center py-1 border-b border-slate-900/55">
                     <span class="text-slate-500 font-medium">Acquired Source</span>
                     <span id="drawer-source" class="text-slate-200 font-semibold text-right">Shop / Trade / Pull</span>
@@ -268,6 +322,7 @@
         let rawInventory = [];
         let filteredInventory = [];
         let activeGameFilter = "ALL";
+        let currentlySelectedCard = null; // Holds card object currently visible in drawer
         
         // Initial setup on body load
         window.onload = function() {
@@ -293,6 +348,7 @@
             }
         }
 
+        // Clean values, safely returning valid float values for computation
         function cleanNumericValue(str) {
             if (!str) return 0;
             let s = str.trim();
@@ -365,14 +421,14 @@
                 return headers.findIndex(h => possibleNames.includes(h));
             };
 
-            // Mapping to your newly structured 11 headers
+            // Mapping to your 11 columns
             const map = {
                 game: getHeaderIndex(['game']),
                 name: getHeaderIndex(['character / card name', 'character/card name', 'character', 'card name', 'name']),
                 code: getHeaderIndex(['set & card number', 'set&card number', 'set number', 'card number', 'code']),
                 rarity: getHeaderIndex(['rarity']),
                 qty: getHeaderIndex(['qty', 'quantity']),
-                lowest_price: getHeaderIndex(['lowest price', 'lowest_price', 'low price', 'low_price', 'low']),
+                lowest_price: getHeaderIndex(['lowest price', 'lowest_price', 'low price', 'low_price', 'low', 'value']),
                 highest_price: getHeaderIndex(['highest price', 'highest_price', 'high price', 'high_price', 'high']),
                 source: getHeaderIndex(['source', 'purchased source', 'where from']),
                 date: getHeaderIndex(['date', 'catalog date', 'date catalogued']),
@@ -424,6 +480,8 @@
                         qty: parseInt(getVal(map.qty).replace(/[^0-9]/g, '')) || 1,
                         valDisplay: valDisplay,
                         valCalc: numericVal,
+                        lowestCalc: cleanLowest,
+                        highestCalc: cleanHighest,
                         lowestDisplay: cleanLowest > 0 ? `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'N/A',
                         highestDisplay: cleanHighest > 0 ? `$${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'N/A',
                         source: getVal(map.source) || 'Unknown',
@@ -541,20 +599,34 @@
         function calculateStats() {
             let totalCards = 0;
             let uniqueCards = filteredInventory.length;
-            let totalValue = 0;
+            
+            let totalLowest = 0;
+            let totalHighest = 0;
+            let totalAvg = 0;
 
             filteredInventory.forEach(card => {
                 totalCards += card.qty;
-                totalValue += (card.valCalc * card.qty);
+                
+                // If lowest price is missing, use highest, or vice versa
+                let low = card.lowestCalc > 0 ? card.lowestCalc : card.highestCalc;
+                let high = card.highestCalc > 0 ? card.highestCalc : card.lowestCalc;
+                
+                totalLowest += (low * card.qty);
+                totalHighest += (high * card.qty);
+                totalAvg += (card.valCalc * card.qty);
             });
 
             document.getElementById("stat-total-cards").innerText = totalCards;
             document.getElementById("stat-unique-cards").innerText = uniqueCards;
             
-            document.getElementById("stat-portfolio-val").innerText = new Intl.NumberFormat('en-US', {
+            const formatCurrency = (val) => new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD'
-            }).format(totalValue);
+            }).format(val);
+
+            document.getElementById("stat-lowest-val").innerText = formatCurrency(totalLowest);
+            document.getElementById("stat-highest-val").innerText = formatCurrency(totalHighest);
+            document.getElementById("stat-avg-val").innerText = formatCurrency(totalAvg);
         }
 
         function getRarityStyle(rarity) {
@@ -638,6 +710,7 @@
 
         function openCardDetail(index) {
             const card = filteredInventory[index];
+            currentlySelectedCard = card; // Save reference for Live AI lookup
             const rStyle = getRarityStyle(card.rarity);
             const hasImage = card.image && card.image.trim() !== "";
             const imageSrc = hasImage ? card.image : `https://placehold.co/300x420/1e293b/94a3b8?text=${encodeURIComponent(card.name)}`;
@@ -656,18 +729,6 @@
             document.getElementById("drawer-lowest-val").innerText = card.lowestDisplay;
             document.getElementById("drawer-highest-val").innerText = card.highestDisplay;
 
-            // Render math averages
-            document.getElementById("drawer-avg-val").innerText = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(card.valCalc);
-            
-            const totalVal = card.valCalc * card.qty;
-            document.getElementById("drawer-total-val").innerText = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(totalVal);
-            
             document.getElementById("drawer-source").innerText = card.source;
             document.getElementById("drawer-date").innerText = card.date;
             document.getElementById("drawer-remarks").innerText = card.remark;
@@ -677,6 +738,14 @@
                 <img src="${imageSrc}" alt="${card.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x420/1e293b/475569?text=Image+Error';">
             `;
 
+            // Reset AI price tool state inside drawer
+            document.getElementById("live-price-result").classList.add("hidden");
+            document.getElementById("live-price-loader").classList.add("hidden");
+            document.getElementById("live-price-content").innerHTML = "";
+            document.getElementById("live-price-sources").innerHTML = "";
+            document.getElementById("live-price-btn").innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Fetch Live Market Prices`;
+            document.getElementById("live-price-btn").disabled = false;
+
             const drawer = document.getElementById("spec-drawer");
             const backdrop = document.getElementById("backdrop-drawer");
             
@@ -685,6 +754,122 @@
                 backdrop.classList.add("opacity-100");
                 drawer.classList.add("active");
             }, 10);
+        }
+
+        async function fetchLiveMarketPrices() {
+            if (!currentlySelectedCard) return;
+
+            const button = document.getElementById("live-price-btn");
+            const resultBox = document.getElementById("live-price-result");
+            const loader = document.getElementById("live-price-loader");
+            const textContent = document.getElementById("live-price-content");
+            const sourceContainer = document.getElementById("live-price-sources");
+
+            // UI feedback
+            button.disabled = true;
+            button.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analyzing Web...`;
+            resultBox.classList.remove("hidden");
+            loader.classList.remove("hidden");
+            textContent.innerHTML = "";
+            sourceContainer.innerHTML = "";
+
+            // Compose the search-grounding prompt
+            const prompt = `Search the web for current real-time market prices, recent completed eBay listings, and TCGPlayer valuations for this card: Game is "${currentlySelectedCard.game}", Name is "${currentlySelectedCard.name}", Card Code/Set number is "${currentlySelectedCard.code}". Show current average market pricing, lowest recent listings, and highest transactions in a clean bulleted format. Keep the explanation very direct and brief (under 120 words).`;
+            
+            const systemPrompt = "You are a professional TCG pricing expert. Search Google and compile live, accurate market details for cards. Highlight where to buy or historical trends briefly.";
+            
+            // Call Gemini 3.1 Flash with built-in search grounding
+            const apiKey = ""; // Canvas automatically supplies API Key at runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            // Implement exponential backoff for network safety
+            let delay = 1000;
+            let success = false;
+            let resultText = "";
+            let sources = [];
+
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP status ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const candidate = data.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        resultText = candidate.content.parts[0].text;
+                        
+                        // Parse Grounding citations if available
+                        const metadata = candidate.groundingMetadata;
+                        if (metadata && metadata.groundingAttributions) {
+                            sources = metadata.groundingAttributions
+                                .map(attr => ({
+                                    uri: attr.web?.uri,
+                                    title: attr.web?.title
+                                }))
+                                .filter(s => s.uri && s.title);
+                        }
+                        success = true;
+                        break;
+                    }
+                } catch (err) {
+                    console.debug(`Price lookup attempt ${attempt + 1} failed. Retrying...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+
+            loader.classList.add("hidden");
+
+            if (success) {
+                // Convert simple double asterisks to bold tags, list symbols, etc.
+                let cleanHtml = resultText
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/-\s(.*?)<br>/g, '<div class="flex items-start gap-1.5 mb-1"><span class="text-amber-400 mt-0.5">•</span><span>$1</span></div>');
+
+                textContent.innerHTML = `<div class="space-y-1.5">${cleanHtml}</div>`;
+
+                // Render Citations nicely
+                if (sources.length > 0) {
+                    // Remove duplicate URIs for cleaner display
+                    const uniqueSources = Array.from(new Set(sources.map(s => s.uri)))
+                        .map(uri => sources.find(s => s.uri === uri))
+                        .slice(0, 3); // Max 3 sources
+
+                    uniqueSources.forEach(src => {
+                        const link = document.createElement("a");
+                        link.href = src.uri;
+                        link.target = "_blank";
+                        link.className = "inline-flex items-center gap-1 px-2 py-0.5 bg-slate-950 border border-slate-800 rounded text-[9px] font-semibold text-amber-400 hover:text-amber-300 transition-all";
+                        link.innerHTML = `<i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i> ${src.title.substring(0, 15)}...`;
+                        sourceContainer.appendChild(link);
+                    });
+                } else {
+                    sourceContainer.innerHTML = `<span class="text-[9px] text-slate-500 italic"><i class="fa-solid fa-circle-check"></i> Analysis Complete</span>`;
+                }
+                button.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Price Verified!`;
+            } else {
+                textContent.innerHTML = `<p class="text-red-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> Live lookup failed. Please try again in a few moments.</p>`;
+                button.disabled = false;
+                button.innerHTML = `<i class="fa-solid fa-rotate-right"></i> Try Again`;
+            }
         }
 
         function closeDrawer() {
