@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEAR'S VAULT</title>
+    <title>Bear's Vault</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome for TCG icons -->
+    <!-- FontAwesome for TCG and Hobby icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -53,15 +53,15 @@
         }
     </style>
 </head>
-<body class="min-h-screen pb-28">
+<body class="min-h-screen pb-32">
 
     <div class="max-w-md mx-auto px-4 pt-6">
         
         <!-- Header Section -->
         <header class="flex justify-between items-center mb-5">
             <div>
-                <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-300 tracking-tight">TCG VAULT</h1>
-                <p class="text-xs text-slate-400 mt-0.5">BUILT BY FLUFFY^^ </p>
+                <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-300 tracking-tight">COLLECTOR VAULT</h1>
+                <p class="text-xs text-slate-400 mt-0.5">Cards, Figures & Model Kits</p>
             </div>
             
             <div class="flex gap-2">
@@ -79,11 +79,11 @@
         <!-- Dynamic Counter Row -->
         <section class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 p-3 rounded-2xl text-center shadow-lg">
-                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Total Cards</span>
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Total Items</span>
                 <p id="stat-total-cards" class="text-xl font-bold text-slate-100 mt-1">0</p>
             </div>
             <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 p-3 rounded-2xl text-center shadow-lg">
-                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Unique Cards</span>
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Unique Items</span>
                 <p id="stat-unique-cards" class="text-xl font-bold text-slate-100 mt-1">0</p>
             </div>
         </section>
@@ -122,15 +122,12 @@
             <!-- Search field -->
             <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-                <input id="search-input" type="text" oninput="applyFilters()" placeholder="Search card names, set numbers..." class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition">
+                <input id="search-input" type="text" oninput="applyFilters()" placeholder="Search names, codes, categories..." class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition">
             </div>
 
-            <!-- Game Filters row -->
+            <!-- Game/Universe Filters row (Dynamically loaded from spreadsheet columns) -->
             <div class="flex gap-2 overflow-x-auto pb-1" id="game-filter-container">
-                <button onclick="setGameFilter('ALL')" id="filter-game-ALL" class="flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition">ALL</button>
-                <button onclick="setGameFilter('POKEMON')" id="filter-game-POKEMON" class="flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition">POKÉMON</button>
-                <button onclick="setGameFilter('NARUTO')" id="filter-game-NARUTO" class="flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition">NARUTO</button>
-                <button onclick="setGameFilter('OTHER')" id="filter-game-OTHER" class="flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition">OTHER</button>
+                <button onclick="setGameFilter('ALL')" id="filter-game-ALL" class="flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition uppercase">ALL</button>
             </div>
         </section>
 
@@ -158,17 +155,23 @@
             <!-- Loading Spinner State -->
             <div id="loader-view" class="flex flex-col items-center justify-center py-16 space-y-3">
                 <div class="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-xs text-slate-400">Streaming card data from spreadsheet...</p>
+                <p class="text-xs text-slate-400">Streaming collection data from spreadsheet...</p>
             </div>
         </main>
 
     </div>
 
-    <!-- Scanning Floating Action Button -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 max-w-md w-full px-4 flex justify-center">
-        <button onclick="openCameraScanner()" class="flex items-center gap-2 px-6 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-sm rounded-full shadow-2xl transition duration-300 transform active:scale-95 border border-amber-400/30 tracking-wide">
-            <i class="fa-solid fa-camera text-base animate-pulse"></i>
-            SCAN PHYSICAL CARD
+    <!-- Dual Scanning & Manual Floating Action Bottom Bar -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 max-w-md w-full px-4 flex gap-3 justify-center">
+        <!-- Scan Card Button -->
+        <button onclick="openCameraScanner()" class="flex-1 flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs rounded-full shadow-2xl transition duration-300 transform active:scale-95 border border-amber-400/30 tracking-wider uppercase">
+            <i class="fa-solid fa-camera text-sm animate-pulse"></i>
+            Scan Item
+        </button>
+        <!-- Manual Add Button -->
+        <button onclick="openManualAdd()" class="flex-1 flex items-center justify-center gap-2 px-4 py-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-extrabold text-xs rounded-full shadow-2xl transition duration-300 transform active:scale-95 tracking-wider uppercase">
+            <i class="fa-solid fa-pen-to-square text-sm"></i>
+            Add Manually
         </button>
     </div>
 
@@ -190,9 +193,9 @@
             <div>
                 <h3 class="font-bold text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-qrcode text-amber-400"></i>
-                    AI Card Identification
+                    AI Item Scanner
                 </h3>
-                <p class="text-[10px] text-slate-400">Position the card flat or upload a file</p>
+                <p class="text-[10px] text-slate-400">Position the item/card or upload a file</p>
             </div>
             <button onclick="closeCameraScanner()" class="p-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-slate-300 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -229,8 +232,8 @@
             <!-- Loader Overlays for processing states -->
             <div id="scanner-analysis-loader" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm hidden flex-col items-center justify-center p-6 text-center">
                 <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <h4 class="font-bold text-slate-100 text-sm">Gemini Neural Recognition Engine</h4>
-                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed">Extracting card metrics, character profile, and estimated valuations...</p>
+                <h4 class="font-bold text-slate-100 text-sm">Gemini Recognition Engine</h4>
+                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed">Extracting item metrics, scale, series information, and estimated market values...</p>
             </div>
         </div>
 
@@ -241,7 +244,7 @@
                 <!-- File upload button (Crucial bypass for sandbox/webcam issues) -->
                 <label class="flex-1 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-semibold text-center cursor-pointer flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-image text-amber-400 text-base"></i>
-                    Upload Card Photo
+                    Upload Photo
                     <input type="file" id="file-uploader" accept="image/*" onchange="handleFileSelected(event)" class="hidden">
                 </label>
                 <button onclick="flipCamera()" class="py-3 px-4 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2">
@@ -268,7 +271,7 @@
     <div id="scanner-confirm-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-end justify-center p-4 hidden">
         <div class="bg-slate-950 border border-slate-800 rounded-t-3xl w-full max-w-sm overflow-hidden shadow-2xl drawer-slide-up transform translate-y-0 active:translate-y-0 p-5">
             <div class="flex justify-between items-center border-b border-slate-900 pb-3 mb-4">
-                <h4 class="font-bold text-slate-100 flex items-center gap-1.5">
+                <h4 id="confirm-modal-title" class="font-bold text-slate-100 flex items-center gap-1.5">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Confirm Scan Results
                 </h4>
                 <button onclick="cancelScanConfirmation()" class="text-slate-400 hover:text-white p-1">
@@ -277,31 +280,39 @@
             </div>
 
             <form id="scan-confirm-form" onsubmit="executeSaveScannedCard(event)" class="space-y-3 text-xs">
-                <!-- Game Selection -->
+                <!-- Game Selection / Custom Category -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Game Universe</label>
-                        <select id="scan-input-game" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Category / Universe</label>
+                        <select id="scan-input-game" onchange="handleCategorySelectionChange()" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none">
                             <option value="Pokémon">POKÉMON</option>
                             <option value="Naruto">NARUTO</option>
-                            <option value="Other">OTHER / VARIOUS</option>
+                            <option value="Figures">FIGURES</option>
+                            <option value="Gundam">GUNDAM</option>
+                            <option value="CUSTOM">ADD CUSTOM CATEGORY...</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Set & Card Number</label>
-                        <input id="scan-input-code" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. SV3a-021">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Set, Code or Scale</label>
+                        <input id="scan-input-code" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. SV3a-021, MG 1/100">
                     </div>
+                </div>
+
+                <!-- Custom Category Input (Revealed only when CUSTOM selected) -->
+                <div id="scan-input-custom-game-container" class="hidden">
+                    <label class="text-[10px] uppercase font-bold text-orange-400 block mb-1">Custom Category Name</label>
+                    <input id="scan-input-custom-game" type="text" class="w-full bg-slate-900 border border-orange-500/50 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-orange-500 focus:outline-none" placeholder="e.g. One Piece, Weiss Schwarz, Transformers">
                 </div>
 
                 <!-- Card Name and Rarity -->
                 <div class="grid grid-cols-3 gap-2">
                     <div class="col-span-2">
-                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Character / Card Name</label>
-                        <input id="scan-input-name" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="Character Name">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Item / Character Name</label>
+                        <input id="scan-input-name" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. Charizard, Gundam Exia, Hatsune Miku">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Rarity</label>
-                        <input id="scan-input-rarity" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-bold text-amber-400 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. ZR / SAR">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Rarity / Grade</label>
+                        <input id="scan-input-rarity" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-bold text-amber-400 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. SAR / MG / Scale">
                     </div>
                 </div>
 
@@ -326,7 +337,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Acquisition Source</label>
-                            <input id="scan-input-source" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="Shop / Pull / Trade">
+                            <input id="scan-input-source" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="Shop / Preorder / Trade">
                         </div>
                         <div>
                             <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Date Logged</label>
@@ -335,17 +346,17 @@
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Image Link (Optional URL)</label>
-                        <input id="scan-input-image" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono truncate focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="https://postimages.org/your-card.jpg">
+                        <input id="scan-input-image" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono truncate focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="https://postimages.org/your-item.jpg">
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Remarks & Condition Notes</label>
-                        <textarea id="scan-input-remark" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. Near Mint, grading candidate"></textarea>
+                        <textarea id="scan-input-remark" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g. Unopened box, built and panel-lined, graded candidate"></textarea>
                     </div>
                 </div>
 
                 <!-- Action Triggers -->
                 <div class="flex gap-2.5 pt-3 border-t border-slate-900">
-                    <button type="button" onclick="cancelScanConfirmation()" class="w-1/3 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl">RETAKE</button>
+                    <button type="button" onclick="cancelScanConfirmation()" class="w-1/3 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl">CANCEL</button>
                     <button type="submit" id="scan-save-btn" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-950/20">
                         SAVE TO SHEET
                     </button>
@@ -360,7 +371,7 @@
             <div class="p-5 border-b border-slate-900 flex justify-between items-center">
                 <h3 class="font-bold text-slate-100 flex items-center gap-2">
                     <i class="fa-regular fa-image text-emerald-400"></i>
-                    Adding Card Pictures
+                    Adding Pictures
                 </h3>
                 <button onclick="toggleImageHelp()" class="text-slate-400 hover:text-white p-1">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -376,14 +387,14 @@
                     <p class="text-slate-400">Paste direct image links that end with extensions like <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.jpg</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.png</code>, or <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.webp</code> directly in your cell rows.</p>
                 </div>
                 <div>
-                    <p class="font-bold text-slate-200 mb-1">3. Hosting Private Photos (Free)</p>
-                    <p class="text-slate-400">If you photograph your own card collection, upload them to free direct hosting platforms such as <a href="https://postimages.org" target="_blank" class="text-amber-400 underline">Postimages.org</a> or <a href="https://imgbb.com" target="_blank" class="text-amber-400 underline">Imgbb.com</a>. Make sure to copy their generated <strong>"Direct Link"</strong> into your Sheet.</p>
+                    <p class="font-bold text-slate-200 mb-1">3. Hosting Photos (Free)</p>
+                    <p class="text-slate-400">If you photograph your own items or boxes, upload them to free direct hosting platforms such as <a href="https://postimages.org" target="_blank" class="text-amber-400 underline">Postimages.org</a> or <a href="https://imgbb.com" target="_blank" class="text-amber-400 underline">Imgbb.com</a>. Make sure to copy their generated <strong>"Direct Link"</strong> into your Sheet.</p>
                 </div>
                 <div class="bg-emerald-950/40 border border-emerald-900/50 p-3 rounded-xl text-emerald-300">
                     <p class="font-semibold flex items-center gap-1.5 mb-1">
                         <i class="fa-solid fa-circle-check"></i> Live Updates
                     </p>
-                    Once uploaded, simply click Sync Database inside the app, and your visual binder will automatically update with card artwork.
+                    Once uploaded, simply click Sync Database inside the app, and your visual binder will automatically update with item artwork.
                 </div>
             </div>
         </div>
@@ -474,7 +485,7 @@
                 </div>
                 <div class="flex-1 space-y-1">
                     <div class="flex justify-between items-start">
-                        <span id="drawer-game" class="px-2 py-0.5 bg-amber-500/10 text-amber-400 font-bold uppercase rounded-full text-[9px] tracking-wider">GAME</span>
+                        <span id="drawer-game" class="px-2 py-0.5 bg-amber-500/10 text-amber-400 font-bold uppercase rounded-full text-[9px] tracking-wider font-mono">GAME</span>
                         <span id="drawer-rarity" class="font-extrabold text-amber-500 uppercase tracking-wider text-sm">SAR</span>
                     </div>
                     <h3 id="drawer-name" class="text-base font-black text-slate-100 leading-tight">Card Character Name</h3>
@@ -743,7 +754,7 @@
                 const quantityVal = parseInt(line[idxQty]) || 1;
 
                 parsedCards.push({
-                    game: idxGame !== -1 ? line[idxGame] || "Other" : "Other",
+                    game: idxGame !== -1 ? (line[idxGame] || "Other").trim() : "Other",
                     name: idxName !== -1 ? line[idxName] || "" : "",
                     code: idxCode !== -1 ? line[idxCode] || "" : "",
                     rarity: idxRarity !== -1 ? line[idxRarity] || "" : "",
@@ -758,6 +769,9 @@
             }
 
             cardDatabase = parsedCards;
+            
+            // Build dynamic game filters automatically from unique Games
+            renderGameFilters();
             applyFilters();
         }
 
@@ -770,6 +784,49 @@
             return isNaN(num) ? 0 : num;
         }
 
+        // Build dynamic game filter elements
+        function renderGameFilters() {
+            const container = document.getElementById('game-filter-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Get unique, non-empty, sorted game values
+            const uniqueGames = [...new Set(cardDatabase.map(card => card.game).filter(g => g && g.trim() !== ""))].sort();
+            
+            // If active filter is no longer in data, fall back to ALL
+            if (activeGameFilter !== 'ALL' && !uniqueGames.includes(activeGameFilter)) {
+                activeGameFilter = 'ALL';
+            }
+
+            // Create ALL filter button
+            const allBtn = document.createElement('button');
+            allBtn.id = 'filter-game-ALL';
+            allBtn.onclick = () => setGameFilter('ALL');
+            if (activeGameFilter === 'ALL') {
+                allBtn.className = "flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition uppercase";
+            } else {
+                allBtn.className = "flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition uppercase";
+            }
+            allBtn.textContent = 'ALL';
+            container.appendChild(allBtn);
+
+            // Create dynamic game filter buttons
+            uniqueGames.forEach(game => {
+                const btn = document.createElement('button');
+                const safeId = `filter-game-${game.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                btn.id = safeId;
+                btn.onclick = () => setGameFilter(game);
+                
+                if (activeGameFilter === game) {
+                    btn.className = "flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition uppercase";
+                } else {
+                    btn.className = "flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition uppercase";
+                }
+                btn.textContent = game;
+                container.appendChild(btn);
+            });
+        }
+
         // Filter card layout grid & sum portfolio statistics
         function applyFilters() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
@@ -780,17 +837,11 @@
                     card.name.toLowerCase().includes(query) || 
                     card.code.toLowerCase().includes(query) ||
                     card.rarity.toLowerCase().includes(query) ||
+                    card.game.toLowerCase().includes(query) ||
                     card.remark.toLowerCase().includes(query);
 
                 if (activeGameFilter === 'ALL') return matchesSearch;
-                if (activeGameFilter === 'POKEMON') return matchesSearch && card.game.toUpperCase().includes('POKÉMON') || card.game.toUpperCase().includes('POKEMON');
-                if (activeGameFilter === 'NARUTO') return matchesSearch && card.game.toUpperCase().includes('NARUTO');
-                if (activeGameFilter === 'OTHER') {
-                    const isPokemon = card.game.toUpperCase().includes('POKÉMON') || card.game.toUpperCase().includes('POKEMON');
-                    const isNaruto = card.game.toUpperCase().includes('NARUTO');
-                    return matchesSearch && !isPokemon && !isNaruto;
-                }
-                return matchesSearch;
+                return matchesSearch && (card.game === activeGameFilter);
             });
 
             // Calculate valuation totals based on Qty * low/high estimations
@@ -824,15 +875,7 @@
         // Set game view filter
         function setGameFilter(gameType) {
             activeGameFilter = gameType;
-            const buttons = ['ALL', 'POKEMON', 'NARUTO', 'OTHER'];
-            buttons.forEach(b => {
-                const el = document.getElementById(`filter-game-${b}`);
-                if (b === gameType) {
-                    el.className = "flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition";
-                } else {
-                    el.className = "flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition";
-                }
-            });
+            renderGameFilters();
             applyFilters();
         }
 
@@ -845,7 +888,7 @@
                 grid.innerHTML = `
                     <div class="col-span-2 text-center py-12 text-slate-500">
                         <i class="fa-solid fa-box-open text-3xl mb-3"></i>
-                        <p class="text-xs">No matching cards found inside your binder.</p>
+                        <p class="text-xs">No matching items found inside your collection.</p>
                     </div>
                 `;
                 return;
@@ -878,7 +921,7 @@
                 let imgBlockHTML = `
                     <div class="w-full aspect-[3/4] bg-gradient-to-br from-slate-950 to-slate-900 flex flex-col justify-center items-center text-center p-3 relative border-b border-slate-800">
                         <div class="absolute inset-0 bg-amber-500/5 blur-xl rounded-full"></div>
-                        <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider mb-2">${card.game}</span>
+                        <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider mb-2 font-mono">${card.game}</span>
                         <p class="text-[11px] font-bold text-slate-200 line-clamp-2 px-1 mb-1">${card.name}</p>
                         <p class="text-[9px] font-mono text-slate-500">${card.code}</p>
                     </div>
@@ -913,14 +956,14 @@
             });
         }
 
-        // Open Slide up Drawer with Card Info
+        // Open Slide up Drawer with Card/Item Info
         function openDrawer(card) {
             currentlySelectedCard = card;
 
             document.getElementById('drawer-game').textContent = card.game;
-            document.getElementById('drawer-rarity').textContent = card.rarity || 'TCG';
+            document.getElementById('drawer-rarity').textContent = card.rarity || 'Item';
             document.getElementById('drawer-name').textContent = card.name;
-            document.getElementById('drawer-code').textContent = card.code || "No Set Assigned";
+            document.getElementById('drawer-code').textContent = card.code || "No Set/Code Assigned";
             document.getElementById('drawer-qty').textContent = card.qty;
             
             document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
@@ -928,7 +971,7 @@
 
             document.getElementById('drawer-source').textContent = card.source || "-";
             document.getElementById('drawer-date').textContent = card.date || "-";
-            document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this card.";
+            document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this item.";
 
             // Reset AI lookup panel
             document.getElementById('pricing-results').classList.add('hidden');
@@ -994,6 +1037,45 @@
             triggerToast("Settings Saved", "Connection endpoints updated and synced.", "success");
         }
 
+        // Category select logic (Handles displaying custom category input)
+        function handleCategorySelectionChange() {
+            const select = document.getElementById('scan-input-game');
+            const customContainer = document.getElementById('scan-input-custom-game-container');
+            if (select.value === 'CUSTOM') {
+                customContainer.classList.remove('hidden');
+                document.getElementById('scan-input-custom-game').required = true;
+                document.getElementById('scan-input-custom-game').focus();
+            } else {
+                customContainer.classList.add('hidden');
+                document.getElementById('scan-input-custom-game').required = false;
+            }
+        }
+
+        // Manual Entry Form Trigger
+        function openManualAdd() {
+            // Reset input values
+            document.getElementById('scan-input-game').value = "Pokémon";
+            document.getElementById('scan-input-custom-game-container').classList.add('hidden');
+            document.getElementById('scan-input-code').value = "";
+            document.getElementById('scan-input-name').value = "";
+            document.getElementById('scan-input-rarity').value = "";
+            document.getElementById('scan-input-qty').value = "1";
+            document.getElementById('scan-input-lowest').value = "";
+            document.getElementById('scan-input-highest').value = "";
+            document.getElementById('scan-input-source').value = "Manual Entry";
+            document.getElementById('scan-input-date').value = new Date().toISOString().substring(0, 10);
+            document.getElementById('scan-input-remark').value = "";
+            document.getElementById('scan-input-image').value = "";
+
+            // Adjust form headers
+            document.getElementById('confirm-modal-title').innerHTML = `
+                <i class="fa-solid fa-pen-to-square text-amber-400"></i> Manual Item Entry
+            `;
+
+            // Display form modal directly
+            document.getElementById('scanner-confirm-modal').classList.remove('hidden');
+        }
+
         // Camera Viewport Logic
         async function openCameraScanner() {
             document.getElementById('scanner-modal').classList.remove('hidden');
@@ -1018,7 +1100,7 @@
                 logDiagnostic("Camera viewfinder initialized successfully.");
             } catch (err) {
                 logDiagnostic(`Microphone/Webcam error: ${err.message}. Showing upload fallback.`);
-                triggerToast("Webcam Restricted", "Check permission. Use 'Upload Card Photo' instead.", "warning");
+                triggerToast("Webcam Restricted", "Check permission. Use 'Upload Photo' or 'Add Manually' instead.", "warning");
             }
         }
 
@@ -1119,18 +1201,18 @@
 
             // Targeted structured guidelines
             const promptText = `
-                Analyze this trading card image.
-                Do your absolute best to recognize this card even if the photo is dark, off-center, or slightly blurry. NEVER fail or reject the query. Educated guesses based on visible layout, character colors, symbols, numbers, and elements are highly encouraged.
+                Analyze this collectible image. It can be a Trading Card (Pokémon, Naruto, etc.), an Anime Figure, or a Gundam Model Kit.
+                Do your absolute best to recognize this item even if the photo is dark, off-center, or slightly blurry. NEVER fail or reject the query. Educated guesses based on visible layout, colors, structures, symbols, numbers, and scales are highly encouraged.
                 
                 Identify and output directly into a standard formatted JSON string containing the following properties:
                 {
-                  "game": "Pokémon" or "Naruto" or "Other",
-                  "name": "Character or Card name",
-                  "code": "Set Code / Card number",
-                  "rarity": "Rarity acronym, e.g. SAR, UR, SR, R, C",
+                  "game": "Pokémon" or "Naruto" or "Figures" or "Gundam" or "Other",
+                  "name": "Item or Character name (Include model version or scale details for Gundams/Figures)",
+                  "code": "Set Code, Model Number, or Scale (e.g. SV3a-021, MG 1/100, 1/7 Scale)",
+                  "rarity": "Rarity acronym or Grade (e.g. SAR, UR, SR, Master Grade, Scale, Prize)",
                   "lowest_price": "Lowest estimated dollar value numeric only (e.g. 15.00)",
                   "highest_price": "Highest estimated dollar value numeric only (e.g. 45.00)",
-                  "remark": "Visual remarks or condition comments"
+                  "remark": "Visual remarks, condition comments, or scale details"
                 }
                 Never output anything other than JSON in your response.
             `;
@@ -1149,7 +1231,7 @@
                 }]
             };
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
             try {
                 const response = await fetch(apiUrl, {
@@ -1187,16 +1269,29 @@
                 document.getElementById('captured-preview-container').classList.add('hidden');
                 document.getElementById('scanner-video').classList.remove('hidden');
                 
-                triggerToast("Scanner Alert", "Analysis failed. Please select 'Upload Card Photo' or double-check your Gemini API Key in Connection Settings.", "error");
+                triggerToast("Scanner Alert", "AI recognition failed. You can upload an image file, retry, or use the 'Add Manually' option directly.", "error");
             }
         }
 
         // Formulate and pop confirmation forms with OCR variables
         function openScanConfirmationForm(data, imageBase64) {
             document.getElementById('scanner-confirm-modal').classList.remove('hidden');
+            document.getElementById('confirm-modal-title').innerHTML = `
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Confirm Scan Results
+            `;
             
             // Map values with structural clean fallback
-            document.getElementById('scan-input-game').value = data.game || "Pokémon";
+            const isStandardCategory = ["Pokémon", "Naruto", "Figures", "Gundam"].includes(data.game);
+            
+            if (isStandardCategory) {
+                document.getElementById('scan-input-game').value = data.game;
+                document.getElementById('scan-input-custom-game-container').classList.add('hidden');
+            } else {
+                document.getElementById('scan-input-game').value = "CUSTOM";
+                document.getElementById('scan-input-custom-game-container').classList.remove('hidden');
+                document.getElementById('scan-input-custom-game').value = data.game || "Other";
+            }
+
             document.getElementById('scan-input-code').value = data.code || "";
             document.getElementById('scan-input-name').value = data.name || "";
             document.getElementById('scan-input-rarity').value = data.rarity || "";
@@ -1211,23 +1306,23 @@
 
         function cancelScanConfirmation() {
             document.getElementById('scanner-confirm-modal').classList.add('hidden');
-            openCameraScanner(); // restart webcam search
+            closeCameraScanner();
         }
 
         // Simulate instant scanner data simulation for offline demonstration
         function triggerDemoMockScan() {
             closeCameraScanner();
             const mockCard = {
-                game: "Naruto",
-                name: "Naruto Uzumaki Nine-Tailed Beast Mode",
-                code: "Kayou-BP-005",
-                rarity: "BP",
-                lowest_price: "45.00",
-                highest_price: "120.00",
-                remark: "Near Mint, Gorgeous Foil Effect"
+                game: "Gundam",
+                name: "MG 1/100 Gundam Exia Dark Matter",
+                code: "Gundam-MG-011",
+                rarity: "Master Grade",
+                lowest_price: "55.00",
+                highest_price: "75.00",
+                remark: "Fully built model kit, customized dark panel lines"
             };
             openScanConfirmationForm(mockCard, null);
-            triggerToast("Demo Mock Loaded", "Loaded simulated Naruto card data.", "info");
+            triggerToast("Demo Mock Loaded", "Loaded simulated Gundam model kit data.", "info");
         }
 
         // Save Captured scanner card data and push into Sheets Webapp
@@ -1246,9 +1341,15 @@
                 return;
             }
 
+            // Determine finalized category value
+            const categorySelect = document.getElementById('scan-input-game').value;
+            const finalCategory = (categorySelect === "CUSTOM") ? 
+                document.getElementById('scan-input-custom-game').value.trim() : 
+                categorySelect;
+
             // Consolidate parameters
             const payload = {
-                game: document.getElementById('scan-input-game').value,
+                game: finalCategory || "Other",
                 name: document.getElementById('scan-input-name').value,
                 code: document.getElementById('scan-input-code').value,
                 rarity: document.getElementById('scan-input-rarity').value,
@@ -1276,7 +1377,7 @@
 
                 // Since we use no-cors, we can't read the response directly (opaque). 
                 // We assume success and manually push locally to immediate state matrix
-                logDiagnostic("Data pushed to Apps Script pipeline.");
+                logDiagnostic("Data successfully queued to Google Sheets script.");
                 
                 // Add newly compiled card directly to client memory so it appears instantly
                 cardDatabase.unshift({
@@ -1293,10 +1394,12 @@
                     image: payload.image
                 });
 
+                // Update dynamic game filter lists and re-run active filter render
+                renderGameFilters();
                 applyFilters();
 
                 document.getElementById('scanner-confirm-modal').classList.add('hidden');
-                triggerToast("Successfully Saved!", `${payload.name} was saved and logged directly inside your Google Sheet.`, "success");
+                triggerToast("Successfully Saved!", `${payload.name} was logged directly inside your Google Sheet.`, "success");
 
             } catch (err) {
                 logDiagnostic(`Apps Script Save Error: ${err.message}`);
@@ -1316,34 +1419,40 @@
             const sourcesDiv = document.getElementById('pricing-sources');
             const sourcesList = document.getElementById('sources-list');
 
-            priceBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analysing Market Indexes...`;
+            priceBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analyzing Market Indexes...`;
             priceBtn.disabled = true;
 
             resultsDiv.classList.remove('hidden');
             resultsDiv.innerHTML = `
                 <div class="flex items-center gap-2 text-slate-400 py-1 font-semibold text-[10px]">
                     <div class="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
-                    Interrogating major pricing databases (TCGplayer, eBay, PriceCharting)...
+                    Interrogating hobby pricing databases, marketplaces, and active listings...
                 </div>
             `;
 
             let apiKey = localStorage.getItem('tcg_gemini_key') || "";
 
-            const targetCardDesc = `Card: ${currentlySelectedCard.name} | Game: ${currentlySelectedCard.game} | Code/Set: ${currentlySelectedCard.code} | Rarity: ${currentlySelectedCard.rarity}`;
-            logDiagnostic(`Starting market assessment lookup for card: ${targetCardDesc}`);
+            const targetCardDesc = `Item Name: ${currentlySelectedCard.name} | Category: ${currentlySelectedCard.game} | Code/Set/Scale: ${currentlySelectedCard.code} | Rarity/Grade: ${currentlySelectedCard.rarity}`;
+            logDiagnostic(`Starting live assessment lookup for item: ${targetCardDesc}`);
 
             const queryPrompt = `
-                Research real-world market values for this specific card using live web searches.
-                Card Profile:
-                - Game: ${currentlySelectedCard.game}
+                Research real-world market values for this specific collectible using live web searches.
+                Collectible Profile:
+                - Category / Universe: ${currentlySelectedCard.game}
                 - Name: ${currentlySelectedCard.name}
-                - Code/Set Number: ${currentlySelectedCard.code}
-                - Rarity: ${currentlySelectedCard.rarity}
+                - Code/Scale/Set Number: ${currentlySelectedCard.code}
+                - Rarity/Grade: ${currentlySelectedCard.rarity}
 
-                Provide a structured report detailing:
-                1. Recent sales values on major portals (such as TCGplayer, eBay, or Cardmarket).
-                2. Market low and high valuations.
-                3. A final suggestion for current mint / played values in USD.
+                Instructions:
+                Find and evaluate active market prices for this item.
+                If it is a Trading Card, look up major card market sites (TCGplayer, eBay, Cardmarket).
+                If it is an Anime Figure, search hobby retail stores, secondary markets (AmiAmi, Solaris Japan, eBay, MFC).
+                If it is a Gundam Model Kit, search Gundam/model marketplaces and distributor listings.
+                
+                Provide a clean, structured report detailing:
+                1. Recent sales range and current active list pricing.
+                2. Market low and high valuations in USD.
+                3. A brief summary of market availability (rare, pre-owned baseline, or readily in-stock).
                 
                 Keep the breakdown short, clear, and bullet-pointed (3-4 sentences total).
             `;
@@ -1352,11 +1461,11 @@
                 contents: [{ parts: [{ text: queryPrompt }] }],
                 tools: [{ "google_search": {} }],
                 systemInstruction: {
-                    parts: [{ text: "You are a financial asset appraiser specializing in trading card markets. Provide clear valuation reports based on search results." }]
+                    parts: [{ text: "You are an expert appraiser specializing in trading cards, anime scale figures, and Gundam model kit markets. Provide realistic secondary-market valuations." }]
                 }
             };
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
             try {
                 const response = await fetch(apiUrl, {
