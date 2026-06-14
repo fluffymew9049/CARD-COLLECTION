@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TCG Vault Premium</title>
+    <title>BEAR'S VAULT</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts Inter -->
@@ -18,7 +18,7 @@
             color: #f3f4f6;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Custom scrollbar styling for a cleaner look */
+        /* Custom scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -30,23 +30,15 @@
             background: #334155;
             border-radius: 9999px;
         }
-        /* Custom animated drawer entry */
+        /* Drawer animation */
         .drawer-slide-up {
             transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .drawer-slide-up.active {
             transform: translateY(0);
         }
-        /* Pulse anim for AI searching */
-        @keyframes subtle-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .animate-subtle-pulse {
-            animation: subtle-pulse 2s infinite ease-in-out;
-        }
-        /* Scanner laser scanning effect line */
+        /* Scanner scanning light bar */
         @keyframes laser-scan {
             0% { top: 0%; }
             50% { top: 100%; }
@@ -54,6 +46,10 @@
         }
         .scanner-laser {
             animation: laser-scan 3s infinite linear;
+        }
+        /* Subtle glowing border for cards with prices loaded */
+        .premium-border-glow {
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
         }
     </style>
 </head>
@@ -65,7 +61,7 @@
         <header class="flex justify-between items-center mb-5">
             <div>
                 <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-300 tracking-tight">TCG VAULT</h1>
-                <p class="text-xs text-slate-400 mt-0.5">Your Premium Interactive Collection</p>
+                <p class="text-xs text-slate-400 mt-0.5">BUILT BY FLUFFY^^ </p>
             </div>
             
             <div class="flex gap-2">
@@ -92,30 +88,31 @@
             </div>
         </section>
 
-        <!-- Portfolio Estimation Vault Block -->
+        <!-- Portfolio Valuation Dashboard -->
         <section class="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-amber-500/20 p-4 rounded-2xl shadow-xl mb-6 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl"></div>
             
             <div class="flex justify-between items-center mb-3">
                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-calculator"></i> Portfolio Valuation Range
+                    <i class="fa-solid fa-wallet"></i> PORTFOLIO ESTIMATIONS
                 </span>
-                <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full font-mono uppercase">Est. Value</span>
+                <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full font-mono uppercase">Sheet Value</span>
             </div>
 
+            <!-- Double Estimation Box -->
             <div class="grid grid-cols-2 gap-3.5 border-b border-slate-800/60 pb-3">
                 <div>
-                    <span class="text-[10px] text-slate-400 font-semibold block">Lowest Estimation</span>
+                    <span class="text-[10px] text-slate-400 font-semibold block">Lowest Portfolio Value</span>
                     <p id="stat-lowest-val" class="text-lg font-black text-emerald-400 mt-1">$0.00</p>
                 </div>
                 <div class="border-l border-slate-800/60 pl-3.5">
-                    <span class="text-[10px] text-slate-400 font-semibold block">Highest Estimation</span>
+                    <span class="text-[10px] text-slate-400 font-semibold block">Highest Portfolio Value</span>
                     <p id="stat-highest-val" class="text-lg font-black text-amber-400 mt-1">$0.00</p>
                 </div>
             </div>
 
             <div class="pt-2.5 flex justify-between items-center text-xs">
-                <span class="text-slate-400">Calculated Mid-Point Avg:</span>
+                <span class="text-slate-400">Calculated Mid-Point Estimate:</span>
                 <span id="stat-avg-val" class="font-extrabold text-slate-100">$0.00</span>
             </div>
         </section>
@@ -133,10 +130,11 @@
                 <button onclick="setGameFilter('ALL')" id="filter-game-ALL" class="flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition">ALL</button>
                 <button onclick="setGameFilter('POKEMON')" id="filter-game-POKEMON" class="flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition">POKÉMON</button>
                 <button onclick="setGameFilter('NARUTO')" id="filter-game-NARUTO" class="flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition">NARUTO</button>
+                <button onclick="setGameFilter('OTHER')" id="filter-game-OTHER" class="flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition">OTHER</button>
             </div>
         </section>
 
-        <!-- main -->
+        <!-- main display container -->
         <main>
             <div id="sync-warning" class="hidden bg-slate-900/95 border border-amber-500/30 p-4 rounded-xl mb-4 text-sm shadow-md">
                 <div class="flex gap-2.5 items-start">
@@ -145,7 +143,7 @@
                         <p class="font-bold text-amber-300">Sync Warning / Access Check</p>
                         <p class="text-xs text-slate-300 mt-1 leading-relaxed">
                             No active database rows could be parsed. Check that your Google Sheet has sharing settings set to 
-                            <strong class="text-white">"Anyone with the link can view"</strong> or configure your direct link in settings.
+                            <strong class="text-white">"Anyone with the link can view"</strong>.
                         </p>
                         <button onclick="toggleDbModal()" class="text-[11px] font-semibold text-amber-400 underline mt-2 block">Configure Sheet Link</button>
                     </div>
@@ -160,7 +158,7 @@
             <!-- Loading Spinner State -->
             <div id="loader-view" class="flex flex-col items-center justify-center py-16 space-y-3">
                 <div class="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-xs text-slate-400">Streaming catalog dataset...</p>
+                <p class="text-xs text-slate-400">Streaming card data from spreadsheet...</p>
             </div>
         </main>
 
@@ -174,7 +172,7 @@
         </button>
     </div>
 
-    <!-- Custom Dialog / Toast Container to replace banned standard alerts -->
+    <!-- Custom Dialog / Toast Container -->
     <div id="custom-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] max-w-sm w-full px-4 transition-all duration-300 transform -translate-y-24 opacity-0 pointer-events-none">
         <div id="toast-bg" class="bg-slate-900 border p-4 rounded-xl shadow-2xl flex gap-3 items-center">
             <i id="toast-icon" class="fa-solid text-lg"></i>
@@ -194,7 +192,7 @@
                     <i class="fa-solid fa-qrcode text-amber-400"></i>
                     AI Card Identification
                 </h3>
-                <p class="text-[10px] text-slate-400">Position the card flat in center framing</p>
+                <p class="text-[10px] text-slate-400">Position the card flat or upload a file</p>
             </div>
             <button onclick="closeCameraScanner()" class="p-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-slate-300 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -231,35 +229,44 @@
             <!-- Loader Overlays for processing states -->
             <div id="scanner-analysis-loader" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm hidden flex-col items-center justify-center p-6 text-center">
                 <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <h4 class="font-bold text-slate-100 text-sm">Gemini Neural Analysis Engine</h4>
-                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed animate-subtle-pulse">Extracting character name, set numbers, rarity and games from image pixels...</p>
+                <h4 class="font-bold text-slate-100 text-sm">Gemini Neural Recognition Engine</h4>
+                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed">Extracting card metrics, character profile, and estimated valuations...</p>
             </div>
         </div>
 
         <!-- Scanner Footer Operations -->
         <div class="p-6 bg-gradient-to-t from-black to-slate-950 border-t border-slate-900/60 flex flex-col gap-4 z-10">
-            <!-- Camera Selection Controls -->
-            <div class="flex justify-between items-center text-xs text-slate-400">
-                <span class="flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Rear Cam Selected
-                </span>
-                <button onclick="flipCamera()" class="px-3 py-1.5 bg-slate-900/80 border border-slate-800 rounded-lg hover:bg-slate-800 text-slate-200">
-                    <i class="fa-solid fa-arrows-rotate mr-1"></i> Flip Video Feed
+            <!-- File Upload & Backup Options -->
+            <div class="flex justify-between items-center gap-2">
+                <!-- File upload button (Crucial bypass for sandbox/webcam issues) -->
+                <label class="flex-1 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-semibold text-center cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-image text-amber-400 text-base"></i>
+                    Upload Card Photo
+                    <input type="file" id="file-uploader" accept="image/*" onchange="handleFileSelected(event)" class="hidden">
+                </label>
+                <button onclick="flipCamera()" class="py-3 px-4 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate text-emerald-400"></i>
+                    Flip Camera
                 </button>
             </div>
 
             <!-- Capture Button container -->
-            <div id="scanner-action-row" class="flex justify-center">
+            <div id="scanner-action-row" class="flex justify-center items-center gap-6">
+                <!-- Demo test button for instant evaluation without physical cards -->
+                <button onclick="triggerDemoMockScan()" class="text-[10px] text-amber-400 hover:underline font-bold">
+                    [Run Demo Scan]
+                </button>
                 <button onclick="captureFrame()" class="w-16 h-16 bg-slate-100 hover:bg-white active:bg-slate-200 rounded-full border-4 border-slate-800 shadow-2xl flex items-center justify-center transition transform active:scale-95">
                     <i class="fa-solid fa-camera text-slate-950 text-xl"></i>
                 </button>
+                <span class="text-[10px] text-slate-500 w-16"></span> <!-- Spacer -->
             </div>
         </div>
     </div>
 
     <!-- Scanning Saved / Confirmation sliding overlay dialog -->
     <div id="scanner-confirm-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-end justify-center p-4 hidden">
-        <div class="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl drawer-slide-up transform translate-y-0 active:translate-y-0 p-5">
+        <div class="bg-slate-950 border border-slate-800 rounded-t-3xl w-full max-w-sm overflow-hidden shadow-2xl drawer-slide-up transform translate-y-0 active:translate-y-0 p-5">
             <div class="flex justify-between items-center border-b border-slate-900 pb-3 mb-4">
                 <h4 class="font-bold text-slate-100 flex items-center gap-1.5">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Confirm Scan Results
@@ -305,11 +312,11 @@
                         <input id="scan-input-qty" type="number" required min="1" value="1" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 text-center font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Low Price</label>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Lowest Price</label>
                         <input id="scan-input-lowest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="0.00">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">High Price</label>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Highest Price</label>
                         <input id="scan-input-highest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="0.00">
                     </div>
                 </div>
@@ -414,16 +421,24 @@
                     <input id="script-url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-orange-500 transition">
                 </div>
 
+                <!-- GEMINI API SETTINGS -->
+                <div class="space-y-1.5 border-t border-slate-900 pt-3">
+                    <label class="text-xs font-bold text-teal-400 uppercase tracking-wide flex items-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> 3. Gemini API Key (Required for Scanner & Prices)
+                    </label>
+                    <span class="text-[10px] text-slate-400 block mb-1">Get a free key from <a href="https://aistudio.google.com/" target="_blank" class="text-teal-400 underline font-semibold">Google AI Studio</a></span>
+                    <input id="gemini-key-input" type="password" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-teal-500 transition">
+                    <p class="text-[9px] text-slate-500 leading-normal">Note: If running inside the Chat Canvas preview, this can be left blank. GitHub Pages deployment requires saving your own key.</p>
+                </div>
+
                 <!-- HELP BLOCK -->
                 <div class="bg-slate-900/60 p-3 rounded-xl text-[10px] text-slate-400 space-y-2 leading-relaxed">
                     <p class="font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1">
-                        <i class="fa-solid fa-circle-question text-amber-400"></i> Scanning & Setup Instructions:
+                        <i class="fa-solid fa-circle-question text-amber-400"></i> Setup Quick Guide:
                     </p>
                     <ol class="list-decimal list-inside space-y-1 text-slate-300">
-                        <li>In Google Sheets, open <strong class="text-white">Extensions > Apps Script</strong>.</li>
-                        <li>Paste your Apps Script Web App Code (handling the `doPost` function).</li>
-                        <li>Click <strong class="text-white">Deploy > New Deployment</strong>, select <strong class="text-white">Web App</strong>, change Who has access to <strong class="text-white">Anyone</strong>, and hit Deploy.</li>
-                        <li>Paste that deployment URL in the Write Connection input box above!</li>
+                        <li>Ensure Google Sheet is set to <strong class="text-white">"Anyone with the link can view"</strong>.</li>
+                        <li>In Google Sheets, open <strong class="text-white">Extensions > Apps Script</strong>, paste your deployment code, and save.</li>
                     </ol>
                 </div>
 
@@ -448,514 +463,449 @@
     <!-- Detailed Collector drawer with AI Price engine -->
     <div id="spec-drawer" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-950 border-t border-slate-800 rounded-t-3xl z-50 drawer-slide-up shadow-2xl overflow-hidden">
         <!-- Drawer indicator pill bar -->
-        <div class="flex justify-center py-3">
-            <div class="w-12 h-1 bg-slate-800 rounded-full"></div>
-        </div>
-
-        <div class="px-5 pb-6 max-h-[85vh] overflow-y-auto">
-            <div class="flex gap-4 items-start mb-4">
-                <div id="drawer-image-container" class="w-24 h-32 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center shadow-lg relative">
-                    <!-- Image rendering inside slide-up drawer -->
+        <div class="w-12 h-1.5 bg-slate-800 rounded-full mx-auto my-3 cursor-pointer" onclick="closeDrawer()"></div>
+        
+        <div class="p-5 pt-1 max-h-[80vh] overflow-y-auto text-xs space-y-4">
+            
+            <!-- Core Card Info Row -->
+            <div class="flex gap-4 items-start">
+                <div id="drawer-image-container" class="w-24 aspect-[3/4] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-600">
+                    <!-- Dynamic image injection -->
                 </div>
-                <div class="flex-1 min-w-0">
-                    <span id="drawer-game-badge" class="px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[9px] rounded uppercase tracking-wider">GAME</span>
-                    <h2 id="drawer-title" class="text-lg font-bold text-slate-100 truncate mt-1.5 leading-tight">Card Character Name</h2>
-                    <p id="drawer-code" class="text-xs font-mono text-slate-400 mt-1">CODE-001</p>
+                <div class="flex-1 space-y-1">
+                    <div class="flex justify-between items-start">
+                        <span id="drawer-game" class="px-2 py-0.5 bg-amber-500/10 text-amber-400 font-bold uppercase rounded-full text-[9px] tracking-wider">GAME</span>
+                        <span id="drawer-rarity" class="font-extrabold text-amber-500 uppercase tracking-wider text-sm">SAR</span>
+                    </div>
+                    <h3 id="drawer-name" class="text-base font-black text-slate-100 leading-tight">Card Character Name</h3>
+                    <p id="drawer-code" class="font-mono text-slate-400 text-[10px]">SET-CODE #000</p>
                     
-                    <div class="flex gap-2 items-center mt-3">
-                        <span id="drawer-rarity-badge" class="text-xs font-bold px-2 py-0.5 rounded border">RARITY</span>
-                        <span id="drawer-qty-badge" class="text-xs bg-slate-900 text-slate-200 border border-slate-800 font-bold px-2 py-0.5 rounded">Qty: 0</span>
+                    <div class="flex gap-1.5 mt-2">
+                        <span class="text-slate-400">Total Owned:</span>
+                        <strong id="drawer-qty" class="text-slate-100">1</strong>
                     </div>
                 </div>
             </div>
 
-            <!-- Financials summary cards inside drawer with split Lowest / Highest layout -->
-            <div class="grid grid-cols-2 gap-2 mb-3">
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                    <span class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider block">Lowest Price</span>
-                    <p id="drawer-lowest-val" class="text-sm font-bold text-slate-100 mt-0.5">$0.00</p>
+            <!-- Double Estimation Box inside Drawer -->
+            <div class="grid grid-cols-2 gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800/80">
+                <div class="text-center">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wide">Lowest Value</span>
+                    <p id="drawer-lowest-price" class="text-sm font-extrabold text-emerald-400 mt-0.5">$0.00</p>
                 </div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-wider block">Highest Price</span>
-                    <p id="drawer-highest-val" class="text-sm font-bold text-slate-100 mt-0.5">$0.00</p>
+                <div class="text-center border-l border-slate-800/60">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wide">Highest Value</span>
+                    <p id="drawer-highest-price" class="text-sm font-extrabold text-amber-400 mt-0.5">$0.00</p>
                 </div>
             </div>
 
-            <!-- AI Price Tracker Tool -->
-            <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl mb-4">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-satellite-dish animate-pulse"></i> Live Web Pricing
-                    </span>
-                    <span class="text-[9px] text-slate-500 font-mono">Real-Time Search</span>
+            <!-- Collector Specific Metadata Blocks -->
+            <div class="grid grid-cols-2 gap-3.5 pt-1">
+                <div class="bg-slate-900/30 p-2.5 rounded-xl border border-slate-900/60">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold block mb-0.5">Source / Channel</span>
+                    <p id="drawer-source" class="font-semibold text-slate-300">-</p>
                 </div>
-                
-                <button id="live-price-btn" onclick="fetchLiveMarketPrices()" class="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition shadow-lg shadow-amber-950/10">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Fetch Live Market Prices
+                <div class="bg-slate-900/30 p-2.5 rounded-xl border border-slate-900/60">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold block mb-0.5">Log Date</span>
+                    <p id="drawer-date" class="font-mono text-slate-300">-</p>
+                </div>
+            </div>
+
+            <!-- Collector Remarks block -->
+            <div class="space-y-1 bg-slate-900/30 p-3 rounded-xl border border-slate-900/60">
+                <span class="text-[10px] text-slate-500 uppercase font-bold block">Remarks & Condition Details</span>
+                <p id="drawer-remark" class="text-slate-300 leading-normal italic">-</p>
+            </div>
+
+            <!-- AI Real-Time Web-Search Price Tracker Engine -->
+            <div class="border-t border-slate-900 pt-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-bold text-slate-100 flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                        Live Market Price Tracker
+                    </h4>
+                    <span class="text-[9px] bg-slate-900 border border-slate-800 text-slate-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">Live Grounding</span>
+                </div>
+
+                <!-- Fetch Price Button -->
+                <button onclick="fetchLiveMarketPrices()" id="fetch-price-btn" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl transition duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/20 uppercase tracking-wide">
+                    <i class="fa-solid fa-circle-nodes animate-pulse"></i>
+                    Fetch Live Market Prices
                 </button>
 
-                <!-- AI output card result -->
-                <div id="live-price-result" class="hidden mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-300">
-                    <div id="live-price-loader" class="flex flex-col items-center justify-center py-4 space-y-2">
-                        <div class="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-                        <p class="text-[10px] text-slate-400 animate-subtle-pulse">Searching Google, eBay & TCGPlayer...</p>
-                    </div>
-                    <div id="live-price-content" class="leading-relaxed space-y-2 max-h-40 overflow-y-auto pr-1">
-                        <!-- AI Price text gets injected here -->
-                    </div>
-                    <div id="live-price-sources" class="mt-2.5 pt-2 border-t border-slate-800/40 flex flex-wrap gap-1.5">
-                        <!-- Citations get injected here -->
-                    </div>
+                <!-- Pricing results output frame -->
+                <div id="pricing-results" class="hidden bg-slate-900/50 rounded-xl p-3 border border-slate-800/80 space-y-2 leading-relaxed">
+                    <!-- Pricing text stream goes here -->
+                </div>
+                <div id="pricing-sources" class="hidden text-[10px] text-slate-400 bg-slate-900/20 p-2.5 rounded-lg border border-slate-900 space-y-1">
+                    <p class="font-bold text-slate-300 uppercase text-[9px] tracking-wider mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-link text-emerald-400"></i> Evaluated Sources:
+                    </p>
+                    <ul id="sources-list" class="list-disc list-inside space-y-0.5 truncate">
+                        <!-- Direct link citations -->
+                    </ul>
                 </div>
             </div>
 
-            <!-- Advanced detailed metadata block -->
-            <div class="space-y-3.5 border-t border-slate-900 pt-3 text-xs">
-                <div class="flex justify-between items-center py-1 border-b border-slate-900/55">
-                    <span class="text-slate-500 font-medium">Acquired Source</span>
-                    <span id="drawer-source" class="text-slate-200 font-semibold text-right">Shop / Trade / Pull</span>
-                </div>
-                <div class="flex justify-between items-center py-1 border-b border-slate-900/55">
-                    <span class="text-slate-500 font-medium">Catalog Date</span>
-                    <span id="drawer-date" class="text-slate-200 font-mono font-semibold text-right">YYYY-MM-DD</span>
-                </div>
-                <div class="flex flex-col gap-1.5 pt-1.5">
-                    <span class="text-slate-500 font-medium">Collector Remarks & Notes</span>
-                    <div id="drawer-remarks" class="bg-slate-900/40 border border-slate-900 rounded-xl p-3 text-slate-300 italic min-h-[50px] leading-relaxed">
-                        No additional remarks provided.
-                    </div>
-                </div>
+            <div class="pt-2">
+                <button onclick="closeDrawer()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl uppercase">Close Details</button>
             </div>
+
         </div>
     </div>
 
+    <!-- Application Logic Script -->
     <script>
-        // Setup default configuration URL targeting your custom Google Sheet
+        // Setup initial default connection configurations to user's parameters out-of-the-box
         const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?gid=0#gid=0";
-        const DEFAULT_SCRIPT_URL = ""; // Google Apps Script URL endpoint
-        
-        let rawInventory = [];
-        let filteredInventory = [];
-        let activeGameFilter = "ALL";
-        let currentlySelectedCard = null; // Holds card object currently visible in drawer
-        let currentStream = null; // Camera video stream handle
-        let activeFacingMode = "environment"; // Try targeting rear camera first
-        
-        // Initial setup on body load
-        window.onload = function() {
-            logDiagnostic("Initializing Application Core...");
-            
-            // Retrieve sheet and script URLs or fall back to defaults
-            let savedUrl = localStorage.getItem("tcg_sheet_url") || DEFAULT_SHEET_URL;
-            let savedScriptUrl = localStorage.getItem("tcg_script_url") || DEFAULT_SCRIPT_URL;
-            
-            document.getElementById("sheet-url-input").value = savedUrl;
-            document.getElementById("script-url-input").value = savedScriptUrl;
-            
-            logDiagnostic(`Source sheet: ${savedUrl.substring(0, 45)}...`);
-            if (savedScriptUrl) {
-                logDiagnostic(`Write Script target configured.`, "text-emerald-400");
-            } else {
-                logDiagnostic(`No Write Script target configured yet. Scanning saves will use local export.`, "text-amber-400");
+        const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_lmmv_FWg44kA27IPxWgO61Xeo5MUThm1fnoJxvYq0SxDiAYIbayoE-jgueSUqa5Z/exec";
+
+        // Global State variables
+        let cardDatabase = [];
+        let filteredDatabase = [];
+        let activeGameFilter = 'ALL';
+        let currentlySelectedCard = null;
+
+        // Camera feed handles
+        let localVideoStream = null;
+        let activeCameraId = null;
+        let cameraFacingMode = "environment"; // default to rear-facing camera on phones
+
+        // On Screen Load Initialize Connections
+        window.addEventListener('DOMContentLoaded', () => {
+            // Apply default configurations if not already defined in localStorage
+            if (!localStorage.getItem('tcg_sheet_url')) {
+                localStorage.setItem('tcg_sheet_url', DEFAULT_SHEET_URL);
             }
+            if (!localStorage.getItem('tcg_script_url')) {
+                localStorage.setItem('tcg_script_url', DEFAULT_SCRIPT_URL);
+            }
+
+            // Populate connection input fields
+            document.getElementById('sheet-url-input').value = localStorage.getItem('tcg_sheet_url') || "";
+            document.getElementById('script-url-input').value = localStorage.getItem('tcg_script_url') || "";
+            document.getElementById('gemini-key-input').value = localStorage.getItem('tcg_gemini_key') || "";
+
+            logDiagnostic("App initialized. Pre-loaded your configured Sheet & Script endpoints.");
             
-            loadDatabase(savedUrl);
-        };
+            // Execute automated startup sync
+            syncDatabase();
+        });
 
-        // Custom notification toast manager
-        function showNotification(title, message, isSuccess = true) {
-            const toast = document.getElementById("custom-toast");
-            const bg = document.getElementById("toast-bg");
-            const icon = document.getElementById("toast-icon");
-            const tTitle = document.getElementById("toast-title");
-            const tMsg = document.getElementById("toast-msg");
+        // Debug logger helper
+        function logDiagnostic(msg) {
+            const logBox = document.getElementById('diagnostic-log');
+            if (logBox) {
+                const now = new Date().toLocaleTimeString();
+                logBox.innerHTML += `<div>[${now}] ${msg}</div>`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+            console.log(msg);
+        }
 
-            if (isSuccess) {
-                bg.className = "bg-slate-900 border border-emerald-500/30 p-4 rounded-xl shadow-2xl flex gap-3 items-center";
+        // Custom non-blocking visual Toast Alerts
+        function triggerToast(title, msg, type = 'success') {
+            const toast = document.getElementById('custom-toast');
+            const bg = document.getElementById('toast-bg');
+            const icon = document.getElementById('toast-icon');
+            const tTitle = document.getElementById('toast-title');
+            const tMsg = document.getElementById('toast-msg');
+
+            tTitle.textContent = title;
+            tMsg.textContent = msg;
+
+            if (type === 'success') {
+                bg.className = "bg-slate-900 border-emerald-500/40 border-2 p-4 rounded-2xl shadow-2xl flex gap-3 items-center";
                 icon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else if (type === 'error') {
+                bg.className = "bg-slate-900 border-rose-500/40 border-2 p-4 rounded-2xl shadow-2xl flex gap-3 items-center";
+                icon.className = "fa-solid fa-circle-exclamation text-rose-400";
             } else {
-                bg.className = "bg-slate-900 border border-red-500/30 p-4 rounded-xl shadow-2xl flex gap-3 items-center";
-                icon.className = "fa-solid fa-triangle-exclamation text-red-400";
+                bg.className = "bg-slate-900 border-amber-500/40 border-2 p-4 rounded-2xl shadow-2xl flex gap-3 items-center";
+                icon.className = "fa-solid fa-bell text-amber-400";
             }
 
-            tTitle.innerText = title;
-            tMsg.innerText = message;
-
-            // Trigger Animation
-            toast.classList.remove("opacity-0", "-translate-y-24", "pointer-events-none");
-            toast.classList.add("opacity-100", "translate-y-0");
+            toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-24');
+            toast.classList.add('opacity-100', 'translate-y-0');
 
             setTimeout(() => {
-                toast.classList.remove("opacity-100", "translate-y-0");
-                toast.classList.add("opacity-0", "-translate-y-24", "pointer-events-none");
-            }, 4500);
+                toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-24');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 4000);
         }
 
-        // Custom diagnostic log engine
-        function logDiagnostic(message, colorClass = "text-slate-400") {
-            const container = document.getElementById("diagnostic-log");
-            if (container) {
-                const p = document.createElement("p");
-                p.className = `${colorClass} py-0.5`;
-                p.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
-                container.appendChild(p);
-                container.scrollTop = container.scrollHeight;
+        // Sync Database: Bypasses browser CORS using visualization endpoint
+        async function syncDatabase() {
+            const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
+            if (!rawSheetUrl) {
+                logDiagnostic("No Google Sheet link configured yet.");
+                document.getElementById('loader-view').classList.add('hidden');
+                document.getElementById('sync-warning').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('loader-view').classList.remove('hidden');
+            document.getElementById('sync-warning').classList.add('hidden');
+            logDiagnostic("Initiating background spreadsheet fetch...");
+
+            try {
+                // Convert Google Sheet edit URL into Gviz CSV export format (bulletproof CORS-bypass)
+                let directCsvUrl = rawSheetUrl;
+                if (rawSheetUrl.includes('/d/') && rawSheetUrl.includes('/edit')) {
+                    const baseMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
+                    if (baseMatch) {
+                        const fileId = baseMatch[1];
+                        // Match gid if present
+                        let gid = "0";
+                        const gidMatch = rawSheetUrl.match(/gid=([0-9]+)/);
+                        if (gidMatch) gid = gidMatch[1];
+                        directCsvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+                    }
+                }
+
+                logDiagnostic(`Targeting optimized stream: ${directCsvUrl}`);
+                const response = await fetch(directCsvUrl);
+                if (!response.ok) throw new Error(`HTTP network error: status ${response.status}`);
+                
+                const csvData = await response.text();
+                parseSpreadsheetCSV(csvData);
+                
+                logDiagnostic(`Sync complete. Loaded ${cardDatabase.length} entries.`);
+                document.getElementById('loader-view').classList.add('hidden');
+            } catch (err) {
+                logDiagnostic(`Fetch Failed: ${err.message}`);
+                document.getElementById('loader-view').classList.add('hidden');
+                document.getElementById('sync-warning').classList.remove('hidden');
+                triggerToast("Sync Failed", "Could not load spreadsheet data. Check configurations.", "error");
             }
         }
 
-        // Clean values, safely returning valid float values for computation
-        function cleanNumericValue(str) {
-            if (!str) return 0;
-            let s = str.trim();
-            // Remove standard currency symbols ($, €, £, ¥)
-            s = s.replace(/[\$\u20AC\u00A3\u00A5]/g, ''); 
-            
-            // Handle European vs US formats
-            if (s.includes(',') && !s.includes('.')) {
-                const parts = s.split(',');
-                if (parts.length === 2 && (parts[1].length === 1 || parts[1].length === 2)) {
-                    s = s.replace(',', '.');
-                } else {
-                    s = s.replace(/,/g, '');
-                }
-            } else if (s.includes(',') && s.includes('.')) {
-                const commaIndex = s.indexOf(',');
-                const dotIndex = s.indexOf('.');
-                if (commaIndex > dotIndex) {
-                    s = s.replace(/,/g, '');
-                } else {
-                    s = s.replace(/\./g, '').replace(',', '.');
-                }
-            } else {
-                s = s.replace(/,/g, '');
-            }
-            
-            s = s.replace(/[^0-9.]/g, '');
-            return parseFloat(s) || 0;
-        }
-
-        function parseCSV(text) {
-            let lines = [];
+        // Parser mapping exactly to your 11 columns
+        function parseSpreadsheetCSV(text) {
+            const lines = [];
             let row = [""];
             let inQuotes = false;
 
+            // Safe state machine parser to handle nested commas within remarks or names
             for (let i = 0; i < text.length; i++) {
-                let c = text[i];
-                let next = text[i+1];
-                if (c === '"') {
-                    if (inQuotes && next === '"') {
+                const char = text[i];
+                const nextChar = text[i+1];
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
                         row[row.length - 1] += '"';
                         i++;
                     } else {
                         inQuotes = !inQuotes;
                     }
-                } else if (c === ',' && !inQuotes) {
+                } else if (char === ',' && !inQuotes) {
                     row.push('');
-                } else if ((c === '\r' || c === '\n') && !inQuotes) {
-                    if (c === '\r' && next === '\n') {
+                } else if ((char === '\r' || char === '\n') && !inQuotes) {
+                    if (char === '\r' && nextChar === '\n') {
                         i++;
                     }
                     lines.push(row);
                     row = [''];
                 } else {
-                    row[row.length - 1] += c;
+                    row[row.length - 1] += char;
                 }
             }
             if (row.length > 1 || row[0] !== '') {
                 lines.push(row);
             }
-            
-            if (lines.length < 2) return [];
 
-            lines = lines.filter(r => r.some(cell => cell.trim() !== ''));
+            if (lines.length < 2) {
+                logDiagnostic("No rows found inside spreadsheet CSV dataset.");
+                return;
+            }
 
-            const headers = lines[0].map(h => h.trim().toLowerCase());
-            logDiagnostic(`Headers matched: [${headers.join(', ')}]`, "text-emerald-400");
-            
-            const getHeaderIndex = (possibleNames) => {
-                return headers.findIndex(h => possibleNames.includes(h));
-            };
+            const headers = lines[0].map(h => h.trim().toUpperCase());
+            logDiagnostic(`Headers detected: ${JSON.stringify(headers)}`);
 
-            // Fully separated mapping matching your exact structure
-            const map = {
-                game: getHeaderIndex(['game']),
-                name: getHeaderIndex(['character / card name', 'character/card name', 'character', 'card name', 'name']),
-                code: getHeaderIndex(['set & card number', 'set&card number', 'set number', 'card number', 'code']),
-                rarity: getHeaderIndex(['rarity']),
-                qty: getHeaderIndex(['qty', 'quantity']),
-                lowest_price: getHeaderIndex(['lowest price', 'lowest_price', 'low price', 'low_price', 'low', 'value']),
-                highest_price: getHeaderIndex(['highest price', 'highest_price', 'high price', 'high_price', 'high']),
-                source: getHeaderIndex(['source', 'purchased source', 'where from']),
-                date: getHeaderIndex(['date', 'catalog date', 'date catalogued']),
-                remark: getHeaderIndex(['remark', 'remarks', 'notes', 'comment']),
-                image: getHeaderIndex(['image', 'card image', 'image url', 'img'])
-            };
+            // Find indexes for mapping
+            const idxGame = headers.findIndex(h => h.includes('GAME'));
+            const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME'));
+            const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER'));
+            const idxRarity = headers.findIndex(h => h.includes('RARITY'));
+            const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
+            const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
+            const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
+            const idxSource = headers.findIndex(h => h.includes('SOURCE'));
+            const idxDate = headers.findIndex(h => h.includes('DATE'));
+            const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE'));
+            const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE'));
 
-            const data = [];
+            const parsedCards = [];
 
             for (let i = 1; i < lines.length; i++) {
-                const values = lines[i];
-                
-                const getVal = (idx) => {
-                    if (idx === -1 || idx >= values.length || values[idx] === undefined) return '';
-                    return values[idx].trim();
-                };
+                const line = lines[i];
+                if (line.length <= 1 || !line[idxName]) continue; // skip empty rows
 
-                const cardName = getVal(map.name);
-                if (cardName) {
-                    const rawLowest = getVal(map.lowest_price);
-                    const rawHighest = getVal(map.highest_price);
+                const quantityVal = parseInt(line[idxQty]) || 1;
 
-                    const cleanLowest = cleanNumericValue(rawLowest);
-                    const cleanHighest = cleanNumericValue(rawHighest);
-
-                    let numericVal = 0;
-                    let valDisplay = '';
-
-                    // Split logic for individual low/high tracking
-                    if (cleanLowest > 0 && cleanHighest > 0) {
-                        numericVal = (cleanLowest + cleanHighest) / 2;
-                        valDisplay = `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} - $${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    } else if (cleanLowest > 0) {
-                        numericVal = cleanLowest;
-                        valDisplay = `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    } else if (cleanHighest > 0) {
-                        numericVal = cleanHighest;
-                        valDisplay = `$${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    } else {
-                        numericVal = 0;
-                        valDisplay = '$0.00';
-                    }
-
-                    data.push({
-                        game: getVal(map.game) || 'Other',
-                        name: cardName,
-                        code: getVal(map.code) || 'N/A',
-                        rarity: getVal(map.rarity) || 'Common',
-                        qty: parseInt(getVal(map.qty).replace(/[^0-9]/g, '')) || 1,
-                        valDisplay: valDisplay,
-                        valCalc: numericVal,
-                        lowestCalc: cleanLowest,
-                        highestCalc: cleanHighest,
-                        lowestDisplay: cleanLowest > 0 ? `$${cleanLowest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'N/A',
-                        highestDisplay: cleanHighest > 0 ? `$${cleanHighest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'N/A',
-                        source: getVal(map.source) || 'Unknown',
-                        date: getVal(map.date) || 'Not Dated',
-                        remark: getVal(map.remark) || 'None',
-                        image: getVal(map.image) || ''
-                    });
-                }
+                parsedCards.push({
+                    game: idxGame !== -1 ? line[idxGame] || "Other" : "Other",
+                    name: idxName !== -1 ? line[idxName] || "" : "",
+                    code: idxCode !== -1 ? line[idxCode] || "" : "",
+                    rarity: idxRarity !== -1 ? line[idxRarity] || "" : "",
+                    qty: quantityVal,
+                    lowest_price: idxLowest !== -1 ? line[idxLowest] || "" : "",
+                    highest_price: idxHighest !== -1 ? line[idxHighest] || "" : "",
+                    source: idxSource !== -1 ? line[idxSource] || "" : "",
+                    date: idxDate !== -1 ? line[idxDate] || "" : "",
+                    remark: idxRemark !== -1 ? line[idxRemark] || "" : "",
+                    image: idxImage !== -1 ? line[idxImage] || "" : ""
+                });
             }
-            return data;
-        }
 
-        function convertUrlToCsv(url) {
-            let processedUrl = url.trim();
-            try {
-                if (processedUrl.includes("/spreadsheets/d/")) {
-                    const idMatches = processedUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-                    if (idMatches && idMatches[1]) {
-                        const spreadsheetId = idMatches[1];
-                        let gid = "0";
-                        const gidMatches = processedUrl.match(/[#&]gid=([0-9]+)/);
-                        if (gidMatches && gidMatches[1]) {
-                            gid = gidMatches[1];
-                        }
-                        return `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
-                    }
-                }
-            } catch (e) {
-                logDiagnostic("URL parse failure, fallback used", "text-red-400");
-            }
-            return processedUrl;
-        }
-
-        async function loadDatabase(url) {
-            const loader = document.getElementById("loader-view");
-            const warningBox = document.getElementById("sync-warning");
-            
-            loader.classList.remove("hidden");
-            warningBox.classList.add("hidden");
-
-            const requestUrl = convertUrlToCsv(url);
-            logDiagnostic("Attempting direct sync fetch...");
-
-            try {
-                const response = await fetch(requestUrl);
-                if (!response.ok) throw new Error(`HTTP network error: ${response.status}`);
-                
-                const csvData = await response.text();
-                logDiagnostic(`Raw downloaded bytes: ${csvData.length}`);
-                
-                rawInventory = parseCSV(csvData);
-                logDiagnostic(`Inventory successfully parsed: ${rawInventory.length} cards.`, "text-emerald-400");
-                
-                if (rawInventory.length === 0) {
-                    warningBox.classList.remove("hidden");
-                }
-                
-                applyFilters();
-            } catch (error) {
-                logDiagnostic(`Fetch failure: ${error.message}`, "text-red-400");
-                logDiagnostic("Verify Sheet is set to 'Anyone with the link can view'!", "text-amber-400");
-                warningBox.classList.remove("hidden");
-                
-                document.getElementById("card-grid").innerHTML = "";
-            } finally {
-                loader.classList.add("hidden");
-            }
-        }
-
-        function setGameFilter(game) {
-            activeGameFilter = game;
-            
-            const btnAll = document.getElementById("filter-game-ALL");
-            const btnPoke = document.getElementById("filter-game-POKEMON");
-            const btnNaru = document.getElementById("filter-game-NARUTO");
-            
-            const inactiveStyle = "bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold";
-            const activeStyle = "bg-amber-500 text-slate-950 font-bold";
-
-            btnAll.className = `flex-shrink-0 px-4 py-2 rounded-lg text-xs tracking-wider transition ${game === 'ALL' ? activeStyle : inactiveStyle}`;
-            btnPoke.className = `flex-shrink-0 px-4 py-2 rounded-lg text-xs tracking-wider transition ${game === 'POKEMON' ? activeStyle : inactiveStyle}`;
-            btnNaru.className = `flex-shrink-0 px-4 py-2 rounded-lg text-xs tracking-wider transition ${game === 'NARUTO' ? activeStyle : inactiveStyle}`;
-
+            cardDatabase = parsedCards;
             applyFilters();
         }
 
+        // Clean numeric calculations for totals
+        function cleanPrice(priceVal) {
+            if (!priceVal) return 0;
+            // Remove currency symbols, commas, and formatting
+            const cleaned = priceVal.toString().replace(/[$,\s]/g, '').trim();
+            const num = parseFloat(cleaned);
+            return isNaN(num) ? 0 : num;
+        }
+
+        // Filter card layout grid & sum portfolio statistics
         function applyFilters() {
-            const search = document.getElementById("search-input").value.toLowerCase().trim();
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
             
-            filteredInventory = rawInventory.filter(card => {
-                // Game filters
-                if (activeGameFilter === "POKEMON" && !card.game.toLowerCase().includes("pokemon") && !card.game.toLowerCase().includes("pokémon")) {
-                    return false;
+            // Apply filtering logic
+            filteredDatabase = cardDatabase.filter(card => {
+                const matchesSearch = 
+                    card.name.toLowerCase().includes(query) || 
+                    card.code.toLowerCase().includes(query) ||
+                    card.rarity.toLowerCase().includes(query) ||
+                    card.remark.toLowerCase().includes(query);
+
+                if (activeGameFilter === 'ALL') return matchesSearch;
+                if (activeGameFilter === 'POKEMON') return matchesSearch && card.game.toUpperCase().includes('POKÉMON') || card.game.toUpperCase().includes('POKEMON');
+                if (activeGameFilter === 'NARUTO') return matchesSearch && card.game.toUpperCase().includes('NARUTO');
+                if (activeGameFilter === 'OTHER') {
+                    const isPokemon = card.game.toUpperCase().includes('POKÉMON') || card.game.toUpperCase().includes('POKEMON');
+                    const isNaruto = card.game.toUpperCase().includes('NARUTO');
+                    return matchesSearch && !isPokemon && !isNaruto;
                 }
-                if (activeGameFilter === "NARUTO" && !card.game.toLowerCase().includes("naruto")) {
-                    return false;
-                }
-                
-                // Search query matches
-                if (search !== "") {
-                    const matchesName = card.name.toLowerCase().includes(search);
-                    const matchesCode = card.code.toLowerCase().includes(search);
-                    const matchesRarity = card.rarity.toLowerCase().includes(search);
-                    if (!matchesName && !matchesCode && !matchesRarity) {
-                        return false;
-                    }
-                }
-                return true;
+                return matchesSearch;
             });
 
-            calculateStats();
-            renderCardGrid();
-        }
+            // Calculate valuation totals based on Qty * low/high estimations
+            let totalCardsCount = 0;
+            let uniqueCardsCount = cardDatabase.length;
+            let totalLowestValue = 0;
+            let totalHighestValue = 0;
 
-        function calculateStats() {
-            let totalCards = 0;
-            let uniqueCards = filteredInventory.length;
-            
-            let totalLowest = 0;
-            let totalHighest = 0;
-            let totalAvg = 0;
+            cardDatabase.forEach(card => {
+                totalCardsCount += card.qty;
+                
+                const low = cleanPrice(card.lowest_price);
+                const high = cleanPrice(card.highest_price);
 
-            filteredInventory.forEach(card => {
-                totalCards += card.qty;
-                
-                // If lowest price is missing, use highest, or vice versa
-                let low = card.lowestCalc > 0 ? card.lowestCalc : card.highestCalc;
-                let high = card.highestCalc > 0 ? card.highestCalc : card.lowestCalc;
-                
-                totalLowest += (low * card.qty);
-                totalHighest += (high * card.qty);
-                totalAvg += (card.valCalc * card.qty);
+                totalLowestValue += (low * card.qty);
+                totalHighestValue += (high * card.qty);
             });
 
-            document.getElementById("stat-total-cards").innerText = totalCards;
-            document.getElementById("stat-unique-cards").innerText = uniqueCards;
-            
-            const formatCurrency = (val) => new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(val);
+            const midAvgVal = (totalLowestValue + totalHighestValue) / 2;
 
-            document.getElementById("stat-lowest-val").innerText = formatCurrency(totalLowest);
-            document.getElementById("stat-highest-val").innerText = formatCurrency(totalHighest);
-            document.getElementById("stat-avg-val").innerText = formatCurrency(totalAvg);
+            // Render stats block
+            document.getElementById('stat-total-cards').textContent = totalCardsCount;
+            document.getElementById('stat-unique-cards').textContent = uniqueCardsCount;
+            document.getElementById('stat-lowest-val').textContent = `$${totalLowestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('stat-highest-val').textContent = `$${totalHighestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('stat-avg-val').textContent = `$${midAvgVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            renderGrid();
         }
 
-        function getRarityStyle(rarity) {
-            const r = rarity.toUpperCase().trim();
-            if (r.includes('ZR') || r.includes('SEC') || r.includes('UR') || r.includes('SAR')) {
-                return {
-                    badge: "bg-red-500/10 text-red-400 border-red-500/30",
-                    border: "border-red-500/30 shadow-red-950/20 shadow-md",
-                    badgeColor: "text-red-400"
-                };
-            }
-            if (r.includes('OR') || r.includes('AR') || r.includes('SSR') || r.includes('SR')) {
-                return {
-                    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-                    border: "border-amber-500/30 shadow-amber-950/20 shadow-md",
-                    badgeColor: "text-amber-400"
-                };
-            }
-            if (r.includes('HR') || r.includes('TR') || r.includes('PR') || r.includes('R')) {
-                return {
-                    badge: "bg-purple-500/10 text-purple-400 border-purple-500/30",
-                    border: "border-purple-500/20",
-                    badgeColor: "text-purple-400"
-                };
-            }
-            return {
-                badge: "bg-slate-800 text-slate-400 border-slate-700/60",
-                border: "border-slate-800/80",
-                badgeColor: "text-slate-400"
-            };
+        // Set game view filter
+        function setGameFilter(gameType) {
+            activeGameFilter = gameType;
+            const buttons = ['ALL', 'POKEMON', 'NARUTO', 'OTHER'];
+            buttons.forEach(b => {
+                const el = document.getElementById(`filter-game-${b}`);
+                if (b === gameType) {
+                    el.className = "flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition";
+                } else {
+                    el.className = "flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition";
+                }
+            });
+            applyFilters();
         }
 
-        function renderCardGrid() {
-            const grid = document.getElementById("card-grid");
-            grid.innerHTML = "";
+        // Render current filter array into the HTML Grid
+        function renderGrid() {
+            const grid = document.getElementById('card-grid');
+            grid.innerHTML = '';
 
-            if (filteredInventory.length === 0) {
+            if (filteredDatabase.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-2 text-center py-12 text-slate-500">
-                        <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
-                        <p class="text-xs">No matching cards found.</p>
+                        <i class="fa-solid fa-box-open text-3xl mb-3"></i>
+                        <p class="text-xs">No matching cards found inside your binder.</p>
                     </div>
                 `;
                 return;
             }
 
-            filteredInventory.forEach((card, index) => {
-                const rStyle = getRarityStyle(card.rarity);
-                const hasImage = card.image && card.image.trim() !== "";
-                const imageSrc = hasImage ? card.image : `https://placehold.co/300x420/1e293b/94a3b8?text=${encodeURIComponent(card.name)}`;
+            filteredDatabase.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = "bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden shadow-lg hover:border-amber-500/40 transition duration-300 flex flex-col justify-between premium-border-glow cursor-pointer";
                 
-                const cardEl = document.createElement("div");
-                cardEl.className = `bg-slate-900/60 border ${rStyle.border} rounded-2xl p-2.5 relative flex flex-col justify-between shadow-lg overflow-hidden cursor-pointer hover:bg-slate-900 transition-all duration-200`;
-                cardEl.setAttribute("onclick", `openCardDetail(${index})`);
+                // Add click event except for UI buttons on the card
+                cardEl.onclick = (e) => {
+                    if (e.target.closest('.qty-btn-handler')) return;
+                    openDrawer(card);
+                };
+
+                // Formulate Price String output
+                let formattedPriceRange = "-";
+                if (card.lowest_price || card.highest_price) {
+                    const lowCleaned = cleanPrice(card.lowest_price);
+                    const highCleaned = cleanPrice(card.highest_price);
+                    
+                    if (lowCleaned && highCleaned) {
+                        formattedPriceRange = `$${lowCleaned} - $${highCleaned}`;
+                    } else {
+                        formattedPriceRange = `$${lowCleaned || highCleaned}`;
+                    }
+                }
+
+                // Handle missing image with elegant fallbacks
+                let imgBlockHTML = `
+                    <div class="w-full aspect-[3/4] bg-gradient-to-br from-slate-950 to-slate-900 flex flex-col justify-center items-center text-center p-3 relative border-b border-slate-800">
+                        <div class="absolute inset-0 bg-amber-500/5 blur-xl rounded-full"></div>
+                        <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider mb-2">${card.game}</span>
+                        <p class="text-[11px] font-bold text-slate-200 line-clamp-2 px-1 mb-1">${card.name}</p>
+                        <p class="text-[9px] font-mono text-slate-500">${card.code}</p>
+                    </div>
+                `;
+
+                if (card.image && card.image.trim().startsWith('http')) {
+                    imgBlockHTML = `
+                        <div class="w-full aspect-[3/4] overflow-hidden relative bg-slate-950 border-b border-slate-800 flex items-center justify-center">
+                            <img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.outerHTML='<div class=\\'p-4 text-center text-slate-600 text-[10px]\\'>Image Load Error</div>'">
+                            <span class="absolute top-2 left-2 text-[8px] bg-slate-950/80 backdrop-blur-md text-amber-400 font-bold tracking-wider px-1.5 py-0.5 rounded-full border border-slate-800/80">${card.rarity || 'TCG'}</span>
+                        </div>
+                    `;
+                }
 
                 cardEl.innerHTML = `
-                    <!-- Quantity Badge -->
-                    <span class="absolute top-2.5 right-2.5 bg-slate-950/90 text-slate-100 font-bold text-xs px-2.5 py-1 rounded-lg border border-slate-800 z-10">x${card.qty}</span>
-                    
-                    <!-- Card Artwork -->
-                    <div class="w-full aspect-[3/4] bg-slate-950 rounded-xl mb-3 overflow-hidden flex items-center justify-center relative border border-slate-800/40">
-                        <img src="${imageSrc}" alt="${card.name}" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.src='https://placehold.co/300x420/1e293b/475569?text=Image+Load+Error';">
-                    </div>
-                    
-                    <!-- Text Details -->
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-sm text-slate-100 truncate pr-6">${card.name}</h3>
-                        <div class="flex justify-between items-center text-[10px]">
-                            <span class="font-mono text-slate-400 truncate max-w-[60%]">${card.code}</span>
-                            <span class="font-bold px-1.5 py-0.5 rounded border ${rStyle.badge}">${card.rarity}</span>
+                    ${imgBlockHTML}
+                    <div class="p-3 space-y-2">
+                        <div>
+                            <h4 class="font-bold text-slate-200 text-xs truncate leading-tight">${card.name}</h4>
+                            <p class="text-[9px] font-mono text-slate-500 truncate mt-0.5">${card.code || 'Various Set'}</p>
                         </div>
-                        <div class="pt-2 flex justify-between items-end border-t border-slate-950 mt-2">
-                            <span class="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">Price Range</span>
-                            <span class="text-xs font-extrabold text-amber-400 max-w-[65%] truncate">${card.valDisplay}</span>
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-semibold text-emerald-400">${formattedPriceRange}</span>
+                            <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg qty-btn-handler">
+                                <span class="text-[10px] text-slate-400">x</span>
+                                <strong class="text-slate-100 font-bold">${card.qty}</strong>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -963,476 +913,509 @@
             });
         }
 
-        function openCardDetail(index) {
-            const card = filteredInventory[index];
-            currentlySelectedCard = card; // Save reference for Live AI lookup
-            const rStyle = getRarityStyle(card.rarity);
-            const hasImage = card.image && card.image.trim() !== "";
-            const imageSrc = hasImage ? card.image : `https://placehold.co/300x420/1e293b/94a3b8?text=${encodeURIComponent(card.name)}`;
+        // Open Slide up Drawer with Card Info
+        function openDrawer(card) {
+            currentlySelectedCard = card;
+
+            document.getElementById('drawer-game').textContent = card.game;
+            document.getElementById('drawer-rarity').textContent = card.rarity || 'TCG';
+            document.getElementById('drawer-name').textContent = card.name;
+            document.getElementById('drawer-code').textContent = card.code || "No Set Assigned";
+            document.getElementById('drawer-qty').textContent = card.qty;
             
-            document.getElementById("drawer-game-badge").innerText = card.game;
-            document.getElementById("drawer-title").innerText = card.name;
-            document.getElementById("drawer-code").innerText = card.code;
-            
-            const rarityBadge = document.getElementById("drawer-rarity-badge");
-            rarityBadge.innerText = card.rarity;
-            rarityBadge.className = `text-xs font-bold px-2.5 py-0.5 rounded border ${rStyle.badge}`;
-            
-            document.getElementById("drawer-qty-badge").innerText = `Qty: ${card.qty}`;
-            
-            // Render Lowest & Highest Individual Metrics
-            document.getElementById("drawer-lowest-val").innerText = card.lowestDisplay;
-            document.getElementById("drawer-highest-val").innerText = card.highestDisplay;
+            document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
+            document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
 
-            document.getElementById("drawer-source").innerText = card.source;
-            document.getElementById("drawer-date").innerText = card.date;
-            document.getElementById("drawer-remarks").innerText = card.remark;
+            document.getElementById('drawer-source').textContent = card.source || "-";
+            document.getElementById('drawer-date').textContent = card.date || "-";
+            document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this card.";
 
-            const imgContainer = document.getElementById("drawer-image-container");
-            imgContainer.innerHTML = `
-                <img src="${imageSrc}" alt="${card.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x420/1e293b/475569?text=Image+Error';">
-            `;
+            // Reset AI lookup panel
+            document.getElementById('pricing-results').classList.add('hidden');
+            document.getElementById('pricing-results').innerHTML = '';
+            document.getElementById('pricing-sources').classList.add('hidden');
+            document.getElementById('sources-list').innerHTML = '';
+            document.getElementById('fetch-price-btn').innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+            document.getElementById('fetch-price-btn').disabled = false;
 
-            // Reset AI price tool state inside drawer
-            document.getElementById("live-price-result").classList.add("hidden");
-            document.getElementById("live-price-loader").classList.add("hidden");
-            document.getElementById("live-price-content").innerHTML = "";
-            document.getElementById("live-price-sources").innerHTML = "";
-            document.getElementById("live-price-btn").innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Fetch Live Market Prices`;
-            document.getElementById("live-price-btn").disabled = false;
-
-            const drawer = document.getElementById("spec-drawer");
-            const backdrop = document.getElementById("backdrop-drawer");
-            
-            backdrop.classList.remove("hidden");
-            setTimeout(() => {
-                backdrop.classList.add("opacity-100");
-                drawer.classList.add("active");
-            }, 10);
-        }
-
-        async function fetchLiveMarketPrices() {
-            if (!currentlySelectedCard) return;
-
-            const button = document.getElementById("live-price-btn");
-            const resultBox = document.getElementById("live-price-result");
-            const loader = document.getElementById("live-price-loader");
-            const textContent = document.getElementById("live-price-content");
-            const sourceContainer = document.getElementById("live-price-sources");
-
-            // UI feedback
-            button.disabled = true;
-            button.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analyzing Web...`;
-            resultBox.classList.remove("hidden");
-            loader.classList.remove("hidden");
-            textContent.innerHTML = "";
-            sourceContainer.innerHTML = "";
-
-            // Compose the search-grounding prompt
-            const prompt = `Search the web for current real-time market prices, recent completed eBay listings, and TCGPlayer valuations for this card: Game is "${currentlySelectedCard.game}", Name is "${currentlySelectedCard.name}", Card Code/Set number is "${currentlySelectedCard.code}". Show current average market pricing, lowest recent listings, and highest transactions in a clean bulleted format. Keep the explanation very direct and brief (under 120 words).`;
-            
-            const systemPrompt = "You are a professional TCG pricing expert. Search Google and compile live, accurate market details for cards. Highlight where to buy or historical trends briefly.";
-            
-            // Call Gemini 3.1 Flash with built-in search grounding
-            const apiKey = ""; // Canvas automatically supplies API Key at runtime
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                }
-            };
-
-            // Implement exponential backoff for network safety
-            let delay = 1000;
-            let success = false;
-            let resultText = "";
-            let sources = [];
-
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP status ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    const candidate = data.candidates?.[0];
-
-                    if (candidate && candidate.content?.parts?.[0]?.text) {
-                        resultText = candidate.content.parts[0].text;
-                        
-                        // Parse Grounding citations if available
-                        const metadata = candidate.groundingMetadata;
-                        if (metadata && metadata.groundingAttributions) {
-                            sources = metadata.groundingAttributions
-                                .map(attr => ({
-                                    uri: attr.web?.uri,
-                                    title: attr.web?.title
-                                }))
-                                .filter(s => s.uri && s.title);
-                        }
-                        success = true;
-                        break;
-                    }
-                } catch (err) {
-                    console.debug(`Price lookup attempt ${attempt + 1} failed. Retrying...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                }
-            }
-
-            loader.classList.add("hidden");
-
-            if (success) {
-                // Convert simple double asterisks to bold tags, list symbols, etc.
-                let cleanHtml = resultText
-                    .replace(/\n/g, '<br>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/-\s(.*?)<br>/g, '<div class="flex items-start gap-1.5 mb-1"><span class="text-amber-400 mt-0.5">•</span><span>$1</span></div>');
-
-                textContent.innerHTML = `<div class="space-y-1.5">${cleanHtml}</div>`;
-
-                // Render Citations nicely
-                if (sources.length > 0) {
-                    const uniqueSources = Array.from(new Set(sources.map(s => s.uri)))
-                        .map(uri => sources.find(s => s.uri === uri))
-                        .slice(0, 3); // Max 3 sources
-
-                    uniqueSources.forEach(src => {
-                        const link = document.createElement("a");
-                        link.href = src.uri;
-                        link.target = "_blank";
-                        link.className = "inline-flex items-center gap-1 px-2 py-0.5 bg-slate-950 border border-slate-800 rounded text-[9px] font-semibold text-amber-400 hover:text-amber-300 transition-all";
-                        link.innerHTML = `<i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i> ${src.title.substring(0, 15)}...`;
-                        sourceContainer.appendChild(link);
-                    });
-                } else {
-                    sourceContainer.innerHTML = `<span class="text-[9px] text-slate-500 italic"><i class="fa-solid fa-circle-check"></i> Analysis Complete</span>`;
-                }
-                button.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Price Verified!`;
+            // Handle drawer card preview
+            const container = document.getElementById('drawer-image-container');
+            if (card.image && card.image.trim().startsWith('http')) {
+                container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover">`;
             } else {
-                textContent.innerHTML = `<p class="text-red-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> Live lookup failed. Please try again in a few moments.</p>`;
-                button.disabled = false;
-                button.innerHTML = `<i class="fa-solid fa-rotate-right"></i> Try Again`;
+                container.innerHTML = `
+                    <div class="text-center p-2 text-slate-500">
+                        <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
+                        <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
+                    </div>
+                `;
             }
+
+            // Animate layout open
+            document.getElementById('backdrop-drawer').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('backdrop-drawer').classList.add('opacity-100');
+                document.getElementById('spec-drawer').classList.add('active');
+            }, 50);
         }
 
         function closeDrawer() {
-            const drawer = document.getElementById("spec-drawer");
-            const backdrop = document.getElementById("backdrop-drawer");
-            
-            drawer.classList.remove("active");
-            backdrop.classList.remove("opacity-100");
+            document.getElementById('backdrop-drawer').classList.remove('opacity-100');
+            document.getElementById('spec-drawer').classList.remove('active');
             setTimeout(() => {
-                backdrop.classList.add("hidden");
+                document.getElementById('backdrop-drawer').classList.add('hidden');
             }, 300);
         }
 
-        function toggleDbModal() {
-            const modal = document.getElementById("db-modal");
-            modal.classList.toggle("hidden");
-        }
-
+        // Modals Toggles
         function toggleImageHelp() {
-            const modal = document.getElementById("image-help-modal");
-            modal.classList.toggle("hidden");
+            const modal = document.getElementById('image-help-modal');
+            modal.classList.toggle('hidden');
         }
 
+        function toggleDbModal() {
+            const modal = document.getElementById('db-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Save Db settings in storage and refresh
         function saveDbSettings() {
-            const inputVal = document.getElementById("sheet-url-input").value.trim();
-            const inputScriptVal = document.getElementById("script-url-input").value.trim();
-            
-            if (inputVal) {
-                localStorage.setItem("tcg_sheet_url", inputVal);
-                logDiagnostic("Saved Sheet read connection URL", "text-emerald-400");
-            }
-            if (inputScriptVal) {
-                localStorage.setItem("tcg_script_url", inputScriptVal);
-                logDiagnostic("Saved Sheet write connection Script URL", "text-emerald-400");
-            } else {
-                localStorage.removeItem("tcg_script_url");
-            }
-            
+            const sheetVal = document.getElementById('sheet-url-input').value.trim();
+            const scriptVal = document.getElementById('script-url-input').value.trim();
+            const geminiVal = document.getElementById('gemini-key-input').value.trim();
+
+            localStorage.setItem('tcg_sheet_url', sheetVal);
+            localStorage.setItem('tcg_script_url', scriptVal);
+            localStorage.setItem('tcg_gemini_key', geminiVal);
+
+            logDiagnostic("Connections updated. Initiating database refresh...");
             toggleDbModal();
-            loadDatabase(inputVal || DEFAULT_SHEET_URL);
+            syncDatabase();
+            triggerToast("Settings Saved", "Connection endpoints updated and synced.", "success");
         }
 
+        // Camera Viewport Logic
         async function openCameraScanner() {
-            const modal = document.getElementById("scanner-modal");
-            const video = document.getElementById("scanner-video");
-            
-            modal.classList.remove("hidden");
-            document.getElementById("captured-preview-container").classList.add("hidden");
-            document.getElementById("scanner-analysis-loader").classList.add("hidden");
-            document.getElementById("scanner-action-row").classList.remove("hidden");
-            
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            document.getElementById('captured-preview-container').classList.add('hidden');
+            document.getElementById('scanner-analysis-loader').classList.add('hidden');
+            document.getElementById('scanner-video').classList.remove('hidden');
+
             try {
-                // Initialize clean device streaming constraints targeting back lens (environment)
+                // Initialize user media streaming
                 const constraints = {
                     video: {
-                        facingMode: activeFacingMode,
+                        facingMode: cameraFacingMode,
                         width: { ideal: 1280 },
                         height: { ideal: 720 }
                     },
                     audio: false
                 };
 
-                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = currentStream;
-                logDiagnostic("Rear video stream established successfully.", "text-emerald-400");
+                localVideoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const videoEl = document.getElementById('scanner-video');
+                videoEl.srcObject = localVideoStream;
+                logDiagnostic("Camera viewfinder initialized successfully.");
             } catch (err) {
-                logDiagnostic(`Primary camera access failed: ${err.message}. Retrying fallback standard feed...`, "text-amber-400");
-                try {
-                    // Fallback constraint
-                    currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                    video.srcObject = currentStream;
-                } catch (fallbackErr) {
-                    showNotification("Camera Error", "Could not access any device cameras. Check permissions.", false);
-                    closeCameraScanner();
-                }
+                logDiagnostic(`Microphone/Webcam error: ${err.message}. Showing upload fallback.`);
+                triggerToast("Webcam Restricted", "Check permission. Use 'Upload Card Photo' instead.", "warning");
             }
         }
 
         function closeCameraScanner() {
-            const modal = document.getElementById("scanner-modal");
-            modal.classList.add("hidden");
-            
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-                currentStream = null;
+            if (localVideoStream) {
+                localVideoStream.getTracks().forEach(track => track.stop());
+                localVideoStream = null;
             }
+            document.getElementById('scanner-modal').classList.add('hidden');
         }
 
-        function flipCamera() {
-            activeFacingMode = activeFacingMode === "environment" ? "user" : "environment";
-            if (currentStream) {
-                closeCameraScanner();
+        // Switch camera facing states (front vs back)
+        async function flipCamera() {
+            cameraFacingMode = (cameraFacingMode === "environment") ? "user" : "environment";
+            logDiagnostic(`Switching camera perspective to: ${cameraFacingMode}`);
+            if (localVideoStream) {
+                // Close active stream and cycle restart
+                localVideoStream.getTracks().forEach(track => track.stop());
+                openCameraScanner();
+            } else {
                 openCameraScanner();
             }
         }
 
-        function captureFrame() {
-            if (!currentStream) return;
+        // Handle offline image selected
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-            const video = document.getElementById("scanner-video");
-            const canvas = document.getElementById("scanner-canvas");
-            const previewImg = document.getElementById("captured-preview-img");
-            const previewContainer = document.getElementById("captured-preview-container");
-            const actionRow = document.getElementById("scanner-action-row");
-
-            const context = canvas.getContext("2d");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            // Draw current snapshot pixel matrix onto canvas
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Convert to web readable JPEG Base64
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-            previewImg.src = dataUrl;
-            previewContainer.classList.remove("hidden");
-            actionRow.classList.add("hidden");
-
-            // Process image with Gemini Flash Neural Vision
-            analyzeCardPhoto(dataUrl);
-        }
-
-        async function analyzeCardPhoto(base64DataUrl) {
-            const loader = document.getElementById("scanner-analysis-loader");
-            loader.classList.remove("hidden");
-
-            // Strip the header out of raw base64 data url ("data:image/jpeg;base64,")
-            const pureBase64 = base64DataUrl.split(',')[1];
-
-            // Setup prompt instructing structured JSON returns
-            const prompt = "Identify this physical trading card image. Extract the following properties: Game (must be either 'Pokémon' or 'Naruto' or 'Other'), Character / Card Name, Set & Card Number (e.g. Set code + card number on card bottom), and Rarity. Do not return Markdown. Return the output STRICTLY matching this JSON schema: {game: 'Pokémon' | 'Naruto' | 'Other', name: string, code: string, rarity: string}";
-            
-            const apiKey = ""; // Platforms injects your key automatically at runtime
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            { text: prompt },
-                            {
-                                inlineData: {
-                                    mimeType: "image/jpeg",
-                                    data: pureBase64
-                                }
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            game: { type: "STRING" },
-                            name: { type: "STRING" },
-                            code: { type: "STRING" },
-                            rarity: { type: "STRING" }
-                        },
-                        required: ["game", "name", "code", "rarity"]
-                    }
-                }
-            };
-
-            let success = false;
-            let resultObject = null;
-
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('scanner-canvas');
+                    const ctx = canvas.getContext('2d');
                     
-                    const resultJson = await response.json();
-                    const text = resultJson.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) {
-                        resultObject = JSON.parse(text.trim());
-                        success = true;
-                        break;
-                    }
-                } catch (e) {
-                    console.debug(`Scanner Vision attempt ${attempt+1} failed. Retrying...`);
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                }
-            }
-
-            loader.classList.add("hidden");
-
-            if (success && resultObject) {
-                // Populate values into confirmation modal drawer inputs
-                document.getElementById("scan-input-game").value = resultObject.game || "Pokémon";
-                document.getElementById("scan-input-name").value = resultObject.name || "";
-                document.getElementById("scan-input-code").value = resultObject.code || "";
-                document.getElementById("scan-input-rarity").value = resultObject.rarity || "";
-                
-                // Set default acquisition properties
-                document.getElementById("scan-input-qty").value = "1";
-                document.getElementById("scan-input-lowest").value = "";
-                document.getElementById("scan-input-highest").value = "";
-                document.getElementById("scan-input-source").value = "Camera Scanner";
-                document.getElementById("scan-input-date").value = new Date().toISOString().substring(0, 10);
-                document.getElementById("scan-input-remark").value = "Scanned using TCG Mobile Scanner";
-                document.getElementById("scan-input-image").value = "";
-
-                // Open Save verification Drawer
-                openScanConfirmationDrawer();
-            } else {
-                showNotification("Scanner Failed", "Could not analyze details. Please retake photo cleanly.", false);
-                // Reset viewfinder action bar
-                document.getElementById("captured-preview-container").classList.add("hidden");
-                document.getElementById("scanner-action-row").classList.remove("hidden");
-            }
-        }
-
-        function openScanConfirmationDrawer() {
-            const drawer = document.getElementById("scanner-confirm-modal");
-            drawer.classList.remove("hidden");
-        }
-
-        function cancelScanConfirmation() {
-            document.getElementById("scanner-confirm-modal").classList.add("hidden");
-            document.getElementById("captured-preview-container").classList.add("hidden");
-            document.getElementById("scanner-action-row").classList.remove("hidden");
-        }
-
-        async function executeSaveScannedCard(event) {
-            event.preventDefault();
-
-            const saveBtn = document.getElementById("scan-save-btn");
-            const scriptUrl = localStorage.getItem("tcg_script_url") || DEFAULT_SCRIPT_URL;
-
-            // Gather verified payload inputs
-            const cardData = {
-                game: document.getElementById("scan-input-game").value,
-                name: document.getElementById("scan-input-name").value,
-                code: document.getElementById("scan-input-code").value,
-                rarity: document.getElementById("scan-input-rarity").value,
-                qty: parseInt(document.getElementById("scan-input-qty").value) || 1,
-                lowest_price: document.getElementById("scan-input-lowest").value,
-                highest_price: document.getElementById("scan-input-highest").value,
-                source: document.getElementById("scan-input-source").value,
-                date: document.getElementById("scan-input-date").value,
-                remark: document.getElementById("scan-input-remark").value,
-                image: document.getElementById("scan-input-image").value
+                    // Set square landscape constraints
+                    canvas.width = img.width > 800 ? 800 : img.width;
+                    canvas.height = (img.height / img.width) * canvas.width;
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    processCardImageAnalysis(dataUrl);
+                };
+                img.src = e.target.result;
             };
+            reader.readAsDataURL(file);
+        }
 
-            // If no write script URL is configured, warn the user and download details locally
-            if (!scriptUrl) {
-                showNotification("No Script Linked", "Scanning requires setting up your Google Sheets Apps Script link.", false);
-                toggleDbModal();
-                cancelScanConfirmation();
-                closeCameraScanner();
+        // Capture frames and analyze using canvas snapshot
+        function captureFrame() {
+            const video = document.getElementById('scanner-video');
+            const canvas = document.getElementById('scanner-canvas');
+            const ctx = canvas.getContext('2d');
+
+            if (!localVideoStream) {
+                triggerToast("No Feed Selected", "Please select or upload a card image file instead.", "error");
                 return;
             }
 
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Writing Rows...`;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Render Static frame preview
+            document.getElementById('captured-preview-img').src = dataUrl;
+            document.getElementById('captured-preview-container').classList.remove('hidden');
+            document.getElementById('scanner-video').classList.add('hidden');
+
+            processCardImageAnalysis(dataUrl);
+        }
+
+        // Handle formatting of the model text JSON before parsing to ensure robust parsing
+        function cleanModelJsonResponse(text) {
+            let clean = text.trim();
+            // Strip markdown block labels if returned
+            if (clean.startsWith("```")) {
+                clean = clean.replace(/^```(json)?\s*/i, "");
+                clean = clean.replace(/\s*```$/, "");
+            }
+            return clean.trim();
+        }
+
+        // Direct call to Gemini Vision Engine for identifying cards
+        async function processCardImageAnalysis(dataUrl) {
+            document.getElementById('scanner-analysis-loader').classList.remove('hidden');
+            
+            // Isolate Base64 binary elements
+            const base64Content = dataUrl.split(',')[1];
+            
+            // Retrieve security credentials
+            let apiKey = localStorage.getItem('tcg_gemini_key') || "";
+            
+            logDiagnostic("Sending query request to Gemini AI Vision platform...");
+
+            // Targeted structured guidelines
+            const promptText = `
+                Analyze this trading card image.
+                Do your absolute best to recognize this card even if the photo is dark, off-center, or slightly blurry. NEVER fail or reject the query. Educated guesses based on visible layout, character colors, symbols, numbers, and elements are highly encouraged.
+                
+                Identify and output directly into a standard formatted JSON string containing the following properties:
+                {
+                  "game": "Pokémon" or "Naruto" or "Other",
+                  "name": "Character or Card name",
+                  "code": "Set Code / Card number",
+                  "rarity": "Rarity acronym, e.g. SAR, UR, SR, R, C",
+                  "lowest_price": "Lowest estimated dollar value numeric only (e.g. 15.00)",
+                  "highest_price": "Highest estimated dollar value numeric only (e.g. 45.00)",
+                  "remark": "Visual remarks or condition comments"
+                }
+                Never output anything other than JSON in your response.
+            `;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: promptText },
+                        {
+                            inlineData: {
+                                mimeType: "image/jpeg",
+                                data: base64Content
+                            }
+                        }
+                    ]
+                }]
+            };
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
             try {
-                logDiagnostic(`Executing Apps Script write query payload...`);
-                const response = await fetch(scriptUrl, {
-                    method: "POST",
-                    mode: "no-cors", // Required to execute on cross-origin Apps Script endpoints cleanly
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(cardData)
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
 
-                // Since we use 'no-cors' mode, browser cannot verify exact status values directly,
-                // but we can assume success if the network request completed without triggering an exception.
-                showNotification("Success!", "New card row added directly to your Sheet!", true);
-                
-                // Update local model dynamically so user sees scanning inputs on live grids instantly
-                rawInventory.unshift({
-                    game: cardData.game,
-                    name: cardData.name,
-                    code: cardData.code,
-                    rarity: cardData.rarity,
-                    qty: cardData.qty,
-                    valDisplay: cardData.lowest_price && cardData.highest_price ? `$${cardData.lowest_price} - $${cardData.highest_price}` : `$${cardData.lowest_price || '0.00'}`,
-                    valCalc: (cleanNumericValue(cardData.lowest_price) + cleanNumericValue(cardData.highest_price)) / 2,
-                    lowestCalc: cleanNumericValue(cardData.lowest_price),
-                    highestCalc: cleanNumericValue(cardData.highest_price),
-                    lowestDisplay: `$${cleanNumericValue(cardData.lowest_price)}`,
-                    highestDisplay: `$${cleanNumericValue(cardData.highest_price)}`,
-                    source: cardData.source,
-                    date: cardData.date,
-                    remark: cardData.remark,
-                    image: cardData.image
-                });
-                
-                applyFilters();
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData?.error?.message || `API status error: ${response.status}`);
+                }
 
-                // Close all scanner components cleanly
-                document.getElementById("scanner-confirm-modal").classList.add("hidden");
+                const result = await response.json();
+                const textResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (!textResponse) {
+                    throw new Error("No data returned from Gemini analysis pipeline.");
+                }
+
+                const sanitizedText = cleanModelJsonResponse(textResponse);
+                logDiagnostic(`Raw AI Extraction Response: ${sanitizedText}`);
+
+                const parsedData = JSON.parse(sanitizedText);
+                
+                // Close camera feed streams
                 closeCameraScanner();
+                
+                // Render save confirmation form overlay
+                openScanConfirmationForm(parsedData, dataUrl);
 
             } catch (err) {
-                logDiagnostic(`Write Failure: ${err.message}`, "text-red-400");
-                showNotification("Save Error", "Network execution failed. Check Script permissions.", false);
+                logDiagnostic(`AI Scanner Error: ${err.message}`);
+                document.getElementById('scanner-analysis-loader').classList.add('hidden');
+                document.getElementById('captured-preview-container').classList.add('hidden');
+                document.getElementById('scanner-video').classList.remove('hidden');
+                
+                triggerToast("Scanner Alert", "Analysis failed. Please select 'Upload Card Photo' or double-check your Gemini API Key in Connection Settings.", "error");
+            }
+        }
+
+        // Formulate and pop confirmation forms with OCR variables
+        function openScanConfirmationForm(data, imageBase64) {
+            document.getElementById('scanner-confirm-modal').classList.remove('hidden');
+            
+            // Map values with structural clean fallback
+            document.getElementById('scan-input-game').value = data.game || "Pokémon";
+            document.getElementById('scan-input-code').value = data.code || "";
+            document.getElementById('scan-input-name').value = data.name || "";
+            document.getElementById('scan-input-rarity').value = data.rarity || "";
+            document.getElementById('scan-input-qty').value = "1";
+            document.getElementById('scan-input-lowest').value = data.lowest_price || "";
+            document.getElementById('scan-input-highest').value = data.highest_price || "";
+            document.getElementById('scan-input-source').value = "AI Scan App";
+            document.getElementById('scan-input-date').value = new Date().toISOString().substring(0, 10);
+            document.getElementById('scan-input-remark').value = data.remark || "";
+            document.getElementById('scan-input-image').value = ""; // Let them provide custom image url or leave blank
+        }
+
+        function cancelScanConfirmation() {
+            document.getElementById('scanner-confirm-modal').classList.add('hidden');
+            openCameraScanner(); // restart webcam search
+        }
+
+        // Simulate instant scanner data simulation for offline demonstration
+        function triggerDemoMockScan() {
+            closeCameraScanner();
+            const mockCard = {
+                game: "Naruto",
+                name: "Naruto Uzumaki Nine-Tailed Beast Mode",
+                code: "Kayou-BP-005",
+                rarity: "BP",
+                lowest_price: "45.00",
+                highest_price: "120.00",
+                remark: "Near Mint, Gorgeous Foil Effect"
+            };
+            openScanConfirmationForm(mockCard, null);
+            triggerToast("Demo Mock Loaded", "Loaded simulated Naruto card data.", "info");
+        }
+
+        // Save Captured scanner card data and push into Sheets Webapp
+        async function executeSaveScannedCard(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('scan-save-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> SAVING ROW...`;
+
+            const scriptUrl = localStorage.getItem('tcg_script_url');
+            if (!scriptUrl) {
+                triggerToast("Missing Writer", "No Google Apps Script Web App URL detected in Database settings.", "error");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "SAVE TO SHEET";
+                return;
+            }
+
+            // Consolidate parameters
+            const payload = {
+                game: document.getElementById('scan-input-game').value,
+                name: document.getElementById('scan-input-name').value,
+                code: document.getElementById('scan-input-code').value,
+                rarity: document.getElementById('scan-input-rarity').value,
+                qty: parseInt(document.getElementById('scan-input-qty').value) || 1,
+                lowest_price: document.getElementById('scan-input-lowest').value,
+                highest_price: document.getElementById('scan-input-highest').value,
+                source: document.getElementById('scan-input-source').value,
+                date: document.getElementById('scan-input-date').value,
+                remark: document.getElementById('scan-input-remark').value,
+                image: document.getElementById('scan-input-image').value
+            };
+
+            logDiagnostic(`Sending save data payload: ${JSON.stringify(payload)}`);
+
+            try {
+                // Post payload bypassing browser restrictions (utilizing text/plain preflight bypass)
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // standard bypass for script redirection blocks
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // Since we use no-cors, we can't read the response directly (opaque). 
+                // We assume success and manually push locally to immediate state matrix
+                logDiagnostic("Data pushed to Apps Script pipeline.");
+                
+                // Add newly compiled card directly to client memory so it appears instantly
+                cardDatabase.unshift({
+                    game: payload.game,
+                    name: payload.name,
+                    code: payload.code,
+                    rarity: payload.rarity,
+                    qty: payload.qty,
+                    lowest_price: payload.lowest_price,
+                    highest_price: payload.highest_price,
+                    source: payload.source,
+                    date: payload.date,
+                    remark: payload.remark,
+                    image: payload.image
+                });
+
+                applyFilters();
+
+                document.getElementById('scanner-confirm-modal').classList.add('hidden');
+                triggerToast("Successfully Saved!", `${payload.name} was saved and logged directly inside your Google Sheet.`, "success");
+
+            } catch (err) {
+                logDiagnostic(`Apps Script Save Error: ${err.message}`);
+                triggerToast("Save Error", "Could not synchronize row save to Google Sheet.", "error");
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "SAVE TO SHEET";
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "SAVE TO SHEET";
+            }
+        }
+
+        // Live Grounded Price Retrieval Engine
+        async function fetchLiveMarketPrices() {
+            if (!currentlySelectedCard) return;
+
+            const priceBtn = document.getElementById('fetch-price-btn');
+            const resultsDiv = document.getElementById('pricing-results');
+            const sourcesDiv = document.getElementById('pricing-sources');
+            const sourcesList = document.getElementById('sources-list');
+
+            priceBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analysing Market Indexes...`;
+            priceBtn.disabled = true;
+
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.innerHTML = `
+                <div class="flex items-center gap-2 text-slate-400 py-1 font-semibold text-[10px]">
+                    <div class="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+                    Interrogating major pricing databases (TCGplayer, eBay, PriceCharting)...
+                </div>
+            `;
+
+            let apiKey = localStorage.getItem('tcg_gemini_key') || "";
+
+            const targetCardDesc = `Card: ${currentlySelectedCard.name} | Game: ${currentlySelectedCard.game} | Code/Set: ${currentlySelectedCard.code} | Rarity: ${currentlySelectedCard.rarity}`;
+            logDiagnostic(`Starting market assessment lookup for card: ${targetCardDesc}`);
+
+            const queryPrompt = `
+                Research real-world market values for this specific card using live web searches.
+                Card Profile:
+                - Game: ${currentlySelectedCard.game}
+                - Name: ${currentlySelectedCard.name}
+                - Code/Set Number: ${currentlySelectedCard.code}
+                - Rarity: ${currentlySelectedCard.rarity}
+
+                Provide a structured report detailing:
+                1. Recent sales values on major portals (such as TCGplayer, eBay, or Cardmarket).
+                2. Market low and high valuations.
+                3. A final suggestion for current mint / played values in USD.
+                
+                Keep the breakdown short, clear, and bullet-pointed (3-4 sentences total).
+            `;
+
+            const payload = {
+                contents: [{ parts: [{ text: queryPrompt }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: {
+                    parts: [{ text: "You are a financial asset appraiser specializing in trading card markets. Provide clear valuation reports based on search results." }]
+                }
+            };
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errBody = await response.json().catch(() => ({}));
+                    throw new Error(errBody?.error?.message || `Status Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                const textOutput = candidate?.content?.parts?.[0]?.text;
+
+                if (!textOutput) {
+                    throw new Error("Empty search output returned from appraisers module.");
+                }
+
+                // Render price text
+                resultsDiv.innerHTML = `<div class="text-slate-300 space-y-1.5 whitespace-pre-wrap leading-normal text-[11px]">${textOutput}</div>`;
+
+                // Render groundings references
+                let sourcesArr = [];
+                const groundings = candidate?.groundingMetadata;
+                if (groundings && groundings.groundingAttributions) {
+                    sourcesArr = groundings.groundingAttributions
+                        .map(attr => ({
+                            uri: attr.web?.uri,
+                            title: attr.web?.title
+                        }))
+                        .filter(src => src.uri && src.title);
+                }
+
+                if (sourcesArr.length > 0) {
+                    sourcesDiv.classList.remove('hidden');
+                    sourcesList.innerHTML = '';
+                    sourcesArr.forEach(src => {
+                        const li = document.createElement('li');
+                        li.className = "truncate hover:text-emerald-300 transition";
+                        li.innerHTML = `<a href="${src.uri}" target="_blank" class="underline font-medium">${src.title}</a>`;
+                        sourcesList.appendChild(li);
+                    });
+                }
+
+                priceBtn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Market Values Loaded`;
+
+            } catch (err) {
+                logDiagnostic(`Market Tracker Error: ${err.message}`);
+                resultsDiv.innerHTML = `
+                    <div class="text-rose-400 text-[10px] flex items-center gap-1.5 font-bold">
+                        <i class="fa-solid fa-exclamation"></i>
+                        Could not fetch prices. Check your Gemini API Key in Database settings.
+                    </div>
+                `;
+                priceBtn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Retry Price Tracker`;
+                priceBtn.disabled = false;
             }
         }
     </script>
