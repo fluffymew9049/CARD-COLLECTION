@@ -402,8 +402,19 @@
                 <div class="text-center border-l border-slate-800/60">
                     <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wide">Highest Value</span>
                     <p id="drawer-highest-price" class="text-sm font-extrabold text-amber-400 mt-0.5">$0.00</p>
-                </div>
+                </div>    
             </div>
+            <div id="ebay-tracker-section" class="border-t border-slate-800 mt-4 pt-3">
+    <div class="flex justify-between items-center mb-2">
+        <label class="text-[10px] uppercase font-bold text-amber-500 flex items-center gap-1">
+            <span>🔄</span> Live eBay Market Data
+        </label>
+        <span id="ebay-average-price" class="text-xs font-bold text-slate-300">--</span>
+    </div>
+    <div id="ebay-listings-container" class="bg-slate-950 border border-slate-900 rounded-xl p-2 max-h-40 overflow-y-auto text-xs text-slate-400 scrollbar-thin">
+        <p class="text-slate-600 italic text-center py-2">Select an item to scan live marketplace data...</p>
+    </div>
+</div>
 
             <!-- Collector Specific Metadata Blocks -->
             <div class="grid grid-cols-2 gap-3.5 pt-1">
@@ -849,39 +860,58 @@
 function openDrawer(card) {
     currentlySelectedCard = card;
 
-    document.getElementById('drawer-game').textContent = card.game;
-    document.getElementById('drawer-rarity').textContent = card.rarity || 'Item';
-    document.getElementById('drawer-name').textContent = card.name;
-    document.getElementById('drawer-code').textContent = card.code || "No Set/Code Assigned";
-    document.getElementById('drawer-qty').textContent = card.qty;
+    // Helper safely assigning layout elements
+    const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
     
-    document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
-    document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
-
-    document.getElementById('drawer-source').textContent = card.source || "-";
-    document.getElementById('drawer-date').textContent = card.date || "-";
-    document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this item.";
-
-    // Reset AI lookup panel
-    document.getElementById('pricing-results').classList.add('hidden');
-    document.getElementById('pricing-results').innerHTML = '';
-    document.getElementById('pricing-sources').classList.add('hidden');
-    document.getElementById('sources-list').innerHTML = '';
-    document.getElementById('fetch-price-btn').innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
-    document.getElementById('fetch-price-btn').disabled = false;
-
-    // Handle drawer card preview
-    const container = document.getElementById('drawer-image-container');
-    if (card.image && card.image.trim().startsWith('http')) {
-        container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover">`;
-    } else {
-        container.innerHTML = `
-            <div class="text-center p-2 text-slate-500">
-                <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
-                <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
-            </div>
-        `;
+    setEl('drawer-game', card.game);
+    setEl('drawer-rarity', card.rarity || 'Item');
+    setEl('drawer-name', card.name);
+    setEl('drawer-code', card.code || "No Set/Code Assigned");
+    setEl('drawer-qty', card.qty);
+    
+    if(document.getElementById('drawer-lowest-price')) {
+        document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
     }
+    if(document.getElementById('drawer-highest-price')) {
+        document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
+    }
+
+    setEl('drawer-source', card.source || "-");
+    setEl('drawer-date', card.date || "-");
+    setEl('drawer-remark', card.remark || "No conditional notes saved for this item.");
+
+    // Reset AI lookup panels safely
+    const resultsEl = document.getElementById('pricing-results');
+    if (resultsEl) { resultsEl.classList.add('hidden'); resultsEl.innerHTML = ''; }
+    
+    const sourcesEl = document.getElementById('pricing-sources');
+    if (sourcesEl) { sourcesEl.classList.add('hidden'); sourcesEl.innerHTML = ''; }
+    
+    const btnEl = document.getElementById('fetch-price-btn');
+    if (btnEl) {
+        btnEl.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+        btnEl.disabled = false;
+    }
+
+    // Handle drawer card preview image
+    const container = document.getElementById('drawer-image-container');
+    if (container) {
+        if (card.image && card.image.trim().startsWith('http')) {
+            container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover rounded-xl">`;
+        } else {
+            container.innerHTML = `
+                <div class="text-center p-2 text-slate-500">
+                    <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
+                    <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
+                </div>
+            `;
+        }
+    }
+
+    // Safely look for your eBay Search Term column data (handles space conversion mapping)
+    const trackingTerm = card.ebay_search_term || card['ebay search term'] || card.code || card.name;
+    loadLiveEbayData(trackingTerm);
+}
 
     // NEW: Kick off the eBay marketplace background tracking using column L
     loadLiveEbayData(card.ebay_search_term);
@@ -1143,6 +1173,61 @@ function openDrawer(card) {
     console.error("eBay Fetch Error:", error);
     avgPriceEl.innerText = "Error";
     containerEl.innerHTML = `<p class="text-rose-500 italic text-center py-2">Failed to load real-time market metrics.</p>`;
+  }
+}async function loadLiveEbayData(ebaySearchTerm) {
+  const avgPriceEl = document.getElementById('ebay-average-price');
+  const containerEl = document.getElementById('ebay-listings-container');
+
+  // Guard clause to ensure elements are mounted before executing
+  if (!avgPriceEl || !containerEl) return; 
+
+  if (!ebaySearchTerm) {
+    avgPriceEl.innerText = "--";
+    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">No tracking keywords configured for this item.</p>`;
+    return;
+  }
+
+  avgPriceEl.innerText = "Scanning...";
+  containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Scanning eBay listings...</p>`;
+
+  try {
+    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
+    if (!response.ok) throw new Error("Function network response failed");
+    
+    const listings = await response.json();
+
+    if (!listings || listings.length === 0) {
+      avgPriceEl.innerText = "N/A";
+      containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2">No active marketplace listings match "${ebaySearchTerm}".</p>`;
+      return;
+    }
+
+    let totalPrice = 0;
+    let listingsHtml = '<div class="space-y-1.5">';
+
+    listings.forEach(item => {
+      const price = parseFloat(item.price.value);
+      totalPrice += price;
+
+      listingsHtml += `
+        <div class="flex justify-between items-center bg-slate-900/40 p-2 rounded-lg border border-slate-900/60 hover:border-slate-800 transition">
+          <a href="${item.itemWebUrl}" target="_blank" class="text-slate-300 hover:text-amber-400 truncate pr-2 max-w-[190px]" title="${item.title}">
+            🛍️ ${item.title}
+          </a>
+          <span class="font-bold text-amber-500 shrink-0">$${price.toFixed(2)}</span>
+        </div>`;
+    });
+
+    listingsHtml += '</div>';
+    const average = totalPrice / listings.length;
+    
+    avgPriceEl.innerText = `Avg: $${average.toFixed(2)}`;
+    containerEl.innerHTML = listingsHtml;
+
+  } catch (error) {
+    console.log("eBay connection tracking offline:", error);
+    avgPriceEl.innerText = "Offline";
+    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">Displaying fixed static valuations.</p>`;
   }
 }
     </script>
