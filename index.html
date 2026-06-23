@@ -846,42 +846,46 @@
         }
 
         // Open Slide up Drawer with Card/Item Info
-        function openDrawer(card) {
-            currentlySelectedCard = card;
+function openDrawer(card) {
+    currentlySelectedCard = card;
 
-            document.getElementById('drawer-game').textContent = card.game;
-            document.getElementById('drawer-rarity').textContent = card.rarity || 'Item';
-            document.getElementById('drawer-name').textContent = card.name;
-            document.getElementById('drawer-code').textContent = card.code || "No Set/Code Assigned";
-            document.getElementById('drawer-qty').textContent = card.qty;
-            
-            document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
-            document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
+    document.getElementById('drawer-game').textContent = card.game;
+    document.getElementById('drawer-rarity').textContent = card.rarity || 'Item';
+    document.getElementById('drawer-name').textContent = card.name;
+    document.getElementById('drawer-code').textContent = card.code || "No Set/Code Assigned";
+    document.getElementById('drawer-qty').textContent = card.qty;
+    
+    document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
+    document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
 
-            document.getElementById('drawer-source').textContent = card.source || "-";
-            document.getElementById('drawer-date').textContent = card.date || "-";
-            document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this item.";
+    document.getElementById('drawer-source').textContent = card.source || "-";
+    document.getElementById('drawer-date').textContent = card.date || "-";
+    document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this item.";
 
-            // Reset AI lookup panel
-            document.getElementById('pricing-results').classList.add('hidden');
-            document.getElementById('pricing-results').innerHTML = '';
-            document.getElementById('pricing-sources').classList.add('hidden');
-            document.getElementById('sources-list').innerHTML = '';
-            document.getElementById('fetch-price-btn').innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
-            document.getElementById('fetch-price-btn').disabled = false;
+    // Reset AI lookup panel
+    document.getElementById('pricing-results').classList.add('hidden');
+    document.getElementById('pricing-results').innerHTML = '';
+    document.getElementById('pricing-sources').classList.add('hidden');
+    document.getElementById('sources-list').innerHTML = '';
+    document.getElementById('fetch-price-btn').innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+    document.getElementById('fetch-price-btn').disabled = false;
 
-            // Handle drawer card preview
-            const container = document.getElementById('drawer-image-container');
-            if (card.image && card.image.trim().startsWith('http')) {
-                container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover">`;
-            } else {
-                container.innerHTML = `
-                    <div class="text-center p-2 text-slate-500">
-                        <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
-                        <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
-                    </div>
-                `;
-            }
+    // Handle drawer card preview
+    const container = document.getElementById('drawer-image-container');
+    if (card.image && card.image.trim().startsWith('http')) {
+        container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover">`;
+    } else {
+        container.innerHTML = `
+            <div class="text-center p-2 text-slate-500">
+                <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
+                <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
+            </div>
+        `;
+    }
+
+    // NEW: Kick off the eBay marketplace background tracking using column L
+    loadLiveEbayData(card.ebay_search_term);
+}
 
             // Animate layout open
             document.getElementById('backdrop-drawer').classList.remove('hidden');
@@ -1088,6 +1092,59 @@
                 btn.innerHTML = '<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices';
             }
         }
+        async function loadLiveEbayData(ebaySearchTerm) {
+  const avgPriceEl = document.getElementById('ebay-average-price');
+  const containerEl = document.getElementById('ebay-listings-container');
+
+  if (!avgPriceEl || !containerEl) return; // Safeguard if elements aren't found
+
+  if (!ebaySearchTerm) {
+    avgPriceEl.innerText = "--";
+    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">No eBay tracking identifier provided for this card.</p>`;
+    return;
+  }
+
+  avgPriceEl.innerText = "Scanning...";
+  containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Fetching live listings from eBay...</p>`;
+
+  try {
+    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
+    const listings = await response.json();
+
+    if (!listings || listings.length === 0) {
+      avgPriceEl.innerText = "N/A";
+      containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2">No active listings found on eBay matching "${ebaySearchTerm}".</p>`;
+      return;
+    }
+
+    let totalPrice = 0;
+    let listingsHtml = '<div class="space-y-1.5">';
+
+    listings.forEach(item => {
+      const price = parseFloat(item.price.value);
+      totalPrice += price;
+
+      listingsHtml += `
+        <div class="flex justify-between items-center bg-slate-900/50 p-1.5 rounded hover:bg-slate-900 transition">
+          <a href="${item.itemWebUrl}" target="_blank" class="text-slate-300 hover:text-amber-400 truncate pr-2 max-w-[200px]" title="${item.title}">
+            🛍️ ${item.title}
+          </a>
+          <span class="font-bold text-amber-500 shrink-0">$${price.toFixed(2)}</span>
+        </div>`;
+    });
+
+    listingsHtml += '</div>';
+
+    const average = totalPrice / listings.length;
+    avgPriceEl.innerText = `Avg: $${average.toFixed(2)}`;
+    containerEl.innerHTML = listingsHtml;
+
+  } catch (error) {
+    console.error("eBay Fetch Error:", error);
+    avgPriceEl.innerText = "Error";
+    containerEl.innerHTML = `<p class="text-rose-500 italic text-center py-2">Failed to load real-time market metrics.</p>`;
+  }
+}
     </script>
 </body>
 </html>
