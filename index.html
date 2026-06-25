@@ -1294,7 +1294,7 @@ function toggleImageHelp() {
   containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Fetching live listings from eBay...</p>`;
 
   try {
-    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
+    const response = await fetch(`https://fluffymew9049.github.io/.netlify/functions/get-ebay-price?q=...${encodeURIComponent(ebaySearchTerm)}`);
     const listings = await response.json();
 
     if (!listings || listings.length === 0) {
