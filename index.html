@@ -1395,6 +1395,17 @@ const listings = await response.json();
         const low = Number(data.lowSold || 0);
         const high = Number(data.highSold || 0);
 
+        const key = (currentlySelectedCard?.code || currentlySelectedCard?.name || searchTerm || '').trim();
+if (key) {
+  ebayValueCache[key] = {
+    low,
+    high,
+    avg,
+    qty: Number(currentlySelectedCard?.qty || 1)
+  };
+}
+updateEbayPortfolioStats();
+
         if (panel) {
             panel.classList.remove('hidden');
             panel.innerHTML = `
