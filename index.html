@@ -482,6 +482,8 @@
         let filteredDatabase = [];
         let activeGameFilter = 'ALL';
         let currentlySelectedCard = null;
+        let ebayValueCache = {}; // key: card.code|name -> { low, high, avg, qty }
+        
 
         // On Screen Load Initialize Connections
         window.addEventListener('DOMContentLoaded', () => {
