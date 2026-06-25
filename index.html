@@ -556,7 +556,7 @@
             const fileId = idMatch[1];
             const gid = gidMatch ? gidMatch[1] : '0';
 
-            if (!/^[A-Za-z0-9_-]+$/.test(fileId) || !/^[0-9]+$/.test(gid)) {
+            if (!/^[^\s/?#&]+$/.test(fileId) || !/^[0-9]+$/.test(gid)) {
                 return null;
             }
 
@@ -595,7 +595,7 @@
             return [...new Set(urls)];
         }
 
-        async function fetchTextWithTimeout(url, timeoutMs = SHEET_FETCH_TIMEOUT_MS) {
+        async function fetchSheetTextWithTimeout(url, timeoutMs = SHEET_FETCH_TIMEOUT_MS) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -642,11 +642,11 @@
                 for (const url of fetchUrls) {
                     try {
                         logDiagnostic(`Trying sheet stream: ${url}`);
-                        csvData = await fetchTextWithTimeout(url);
+                        csvData = await fetchSheetTextWithTimeout(url);
                         if (csvData && csvData.trim()) {
                             break;
                         }
-                        throw new Error('Spreadsheet response was empty.');
+                        throw new Error('Spreadsheet response was empty. Verify the sheet is publicly accessible.');
                     } catch (error) {
                         lastError = error;
                         logDiagnostic(`Sheet stream failed: ${error.message}`);
@@ -654,7 +654,7 @@
                 }
 
                 if (!csvData || !csvData.trim()) {
-                    throw lastError || new Error('Unable to fetch spreadsheet data.');
+                    throw lastError || new Error(`Unable to fetch spreadsheet data after trying ${fetchUrls.length} endpoints. Verify the sheet URL and sharing settings.`);
                 }
 
                 parseSpreadsheetCSV(csvData);
