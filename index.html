@@ -820,7 +820,24 @@ function parseSpreadsheetCSV(text) {
             const num = parseFloat(cleaned);
             return isNaN(num) ? 0 : num;
         }
+function updateEbayPortfolioStats() {
+    let totalLow = 0;
+    let totalHigh = 0;
 
+    Object.values(ebayValueCache).forEach(v => {
+        const qty = Number(v.qty || 1);
+        totalLow += Number(v.low || 0) * qty;
+        totalHigh += Number(v.high || 0) * qty;
+    });
+
+    const lowEl = document.getElementById('stat-ebay-lowest-val');
+    const highEl = document.getElementById('stat-ebay-highest-val');
+    const avgEl = document.getElementById('stat-ebay-avg-val');
+
+    if (lowEl) lowEl.textContent = `$${totalLow.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    if (highEl) highEl.textContent = `$${totalHigh.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    if (avgEl) avgEl.textContent = `$${((totalLow + totalHigh)/2).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+}
         // Build dynamic game filter elements
         function renderGameFilters() {
             const container = document.getElementById('game-filter-container');
