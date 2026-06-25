@@ -1330,61 +1330,89 @@ function toggleImageHelp() {
     avgPriceEl.innerText = "Error";
     containerEl.innerHTML = `<p class="text-rose-500 italic text-center py-2">Failed to load real-time market metrics.</p>`;
   }
-}async function loadLiveEbayData(ebaySearchTerm) {
-  const avgPriceEl = document.getElementById('ebay-average-price');
-  const containerEl = document.getElementById('ebay-listings-container');
+}async function loadLiveEbayData(searchTerm) {
+    const statusEl = document.getElementById('ebay-connection-status');
+    const btn = document.getElementById('fetch-price-btn');
+    const panel = document.getElementById('pricing-results');
 
-  // Guard clause to ensure elements are mounted before executing
-  if (!avgPriceEl || !containerEl) return; 
+    const setStatus = (online, text) => {
+        if (!statusEl) return;
+        statusEl.textContent = text || (online ? "Online" : "Offline");
+        statusEl.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400');
+        statusEl.classList.add(online ? 'text-green-400' : 'text-red-400');
+    };
 
-  if (!ebaySearchTerm) {
-    avgPriceEl.innerText = "--";
-    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">No tracking keywords configured for this item.</p>`;
-    return;
-  }
+    try {
+        const scriptUrl = (localStorage.getItem('tcg_script_url') || '').trim();
+        if (!scriptUrl) throw new Error('Missing tcg_script_url in localStorage');
 
-  avgPriceEl.innerText = "Scanning...";
-  containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Scanning eBay listings...</p>`;
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking eBay...`;
+        }
 
-  try {
-    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
-    if (!response.ok) throw new Error("Function network response failed");
-    
-    const listings = await response.json();
+        const url = `${scriptUrl}?action=ebay_price_lookup&query=${encodeURIComponent(searchTerm || '')}`;
+        const response = await fetch(url, { method: 'GET', cache: 'no-store' });
 
-    if (!listings || listings.length === 0) {
-      avgPriceEl.innerText = "N/A";
-      containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2">No active marketplace listings match "${ebaySearchTerm}".</p>`;
-      return;
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const raw = await response.text();
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch {
+            throw new Error('Invalid JSON response from backend');
+        }
+
+        if (!data || data.success === false) {
+            throw new Error(data?.message || 'Lookup unsuccessful');
+        }
+
+        const avg = Number(data.avgSold || 0);
+        const low = Number(data.lowSold || 0);
+        const high = Number(data.highSold || 0);
+
+        if (panel) {
+            panel.classList.remove('hidden');
+            panel.innerHTML = `
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-800 rounded p-2">
+                        <div class="text-xs text-slate-400">Low Sold</div>
+                        <div class="font-semibold">$${low.toFixed(2)}</div>
+                    </div>
+                    <div class="bg-slate-800 rounded p-2">
+                        <div class="text-xs text-slate-400">Avg Sold</div>
+                        <div class="font-semibold">$${avg.toFixed(2)}</div>
+                    </div>
+                    <div class="bg-slate-800 rounded p-2">
+                        <div class="text-xs text-slate-400">High Sold</div>
+                        <div class="font-semibold">$${high.toFixed(2)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        setStatus(true, 'Online');
+    } catch (err) {
+        console.error('eBay connection tracking offline:', err);
+        setStatus(false, 'Offline');
+
+        if (panel) {
+            panel.classList.remove('hidden');
+            panel.innerHTML = `
+                <div class="text-sm text-red-300 bg-red-950/40 border border-red-800 rounded p-2">
+                    Live lookup failed: ${err.message}
+                </div>
+            `;
+        }
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+        }
     }
-
-    let totalPrice = 0;
-    let listingsHtml = '<div class="space-y-1.5">';
-
-    listings.forEach(item => {
-      const price = parseFloat(item.price.value);
-      totalPrice += price;
-
-      listingsHtml += `
-        <div class="flex justify-between items-center bg-slate-900/40 p-2 rounded-lg border border-slate-900/60 hover:border-slate-800 transition">
-          <a href="${item.itemWebUrl}" target="_blank" class="text-slate-300 hover:text-amber-400 truncate pr-2 max-w-[190px]" title="${item.title}">
-            🛍️ ${item.title}
-          </a>
-          <span class="font-bold text-amber-500 shrink-0">$${price.toFixed(2)}</span>
-        </div>`;
-    });
-
-    listingsHtml += '</div>';
-    const average = totalPrice / listings.length;
-    
-    avgPriceEl.innerText = `Avg: $${average.toFixed(2)}`;
-    containerEl.innerHTML = listingsHtml;
-
-  } catch (error) {
-    console.log("eBay connection tracking offline:", error);
-    avgPriceEl.innerText = "Offline";
-    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">Displaying fixed static valuations.</p>`;
-  }
 }
     </script>
 </body>
