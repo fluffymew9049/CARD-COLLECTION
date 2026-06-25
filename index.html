@@ -47,7 +47,13 @@
 <body class="min-h-screen pb-32">
 
     <div class="max-w-md mx-auto px-4 pt-6">
-        
+        <div class="flex justify-between items-center">
+  <h4 class="font-bold text-slate-100 flex items-center gap-1.5">
+    <i class="fa-solid fa-chart-line text-emerald-400"></i>
+    Live Market Price Tracker
+  </h4>
+  <span id="ebay-connection-status" class="text-[10px] text-yellow-400">Idle</span>
+</div>
         <!-- Header Section -->
         <header class="flex justify-between items-center mb-5">
             <div>
@@ -1081,7 +1087,6 @@ function toggleImageHelp() {
     modal.classList.toggle('hidden');
 }
 
-<span id="ebay-connection-status" class="text-[10px] text-yellow-400">Idle</span>
 
         // Live Market Price Fetching Engine
         async function fetchLiveMarketPrices() {
