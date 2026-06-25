@@ -546,50 +546,181 @@
         }
 
         // Sync Database: Bypasses browser CORS using visualization endpoint
-        async function syncDatabase() {
-            const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
-            if (!rawSheetUrl) {
-                logDiagnostic("No Google Sheet link configured yet.");
-                document.getElementById('loader-view').classList.add('hidden');
-                document.getElementById('sync-warning').classList.remove('hidden');
-                return;
-            }
+       async function syncDatabase() {
+    const loader = document.getElementById('loader-view');
+    const warning = document.getElementById('sync-warning');
 
-            document.getElementById('loader-view').classList.remove('hidden');
-            document.getElementById('sync-warning').classList.add('hidden');
-            logDiagnostic("Initiating background spreadsheet fetch...");
+    const safeHideLoader = () => { if (loader) loader.classList.add('hidden'); };
+    const safeShowLoader = () => { if (loader) loader.classList.remove('hidden'); };
+    const safeShowWarning = () => { if (warning) warning.classList.remove('hidden'); };
+    const safeHideWarning = () => { if (warning) warning.classList.add('hidden'); };
 
-            try {
-                // Convert Google Sheet edit URL into Gviz CSV export format (bulletproof CORS-bypass)
-                let directCsvUrl = rawSheetUrl;
-                if (rawSheetUrl.includes('/d/') && rawSheetUrl.includes('/edit')) {
-                    const baseMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
-                    if (baseMatch) {
-                        const fileId = baseMatch[1];
-                        // Match gid if present
-                        let gid = "0";
-                        const gidMatch = rawSheetUrl.match(/gid=([0-9]+)/);
-                        if (gidMatch) gid = gidMatch[1];
-                        directCsvUrl = `https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?usp=sharing`;
-                    }
-                }
+    const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
 
-                logDiagnostic(`Targeting optimized stream: ${directCsvUrl}`);
-                const response = await fetch(directCsvUrl);
-                if (!response.ok) throw new Error(`HTTP network error: status ${response.status}`);
-                
-                const csvData = await response.text();
-                parseSpreadsheetCSV(csvData);
-                
-                logDiagnostic(`Sync complete. Loaded ${cardDatabase.length} entries.`);
-                document.getElementById('loader-view').classList.add('hidden');
-            } catch (err) {
-                logDiagnostic(`Fetch Failed: ${err.message}`);
-                document.getElementById('loader-view').classList.add('hidden');
-                document.getElementById('sync-warning').classList.remove('hidden');
-                triggerToast("Sync Failed", "Could not load spreadsheet data. Check configurations.", "error");
-            }
+    if (!rawSheetUrl) {
+        logDiagnostic("No Google Sheet URL configured in localStorage (tcg_sheet_url).");
+        safeHideLoader();
+        safeShowWarning();
+        triggerToast("Missing Sheet URL", "Please set your Google Sheet URL in Database Connections.", "error");
+        return;
+    }
+
+    safeShowLoader();
+    safeHideWarning();
+    logDiagnostic(`Starting sync using URL: ${rawSheetUrl}`);
+
+    try {
+        const idMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
+        if (!idMatch || !idMatch[1]) {
+            throw new Error("Invalid Google Sheet URL format. Could not extract Sheet ID.");
         }
+
+        const sheetId = idMatch[1];
+        const gid = rawSheetUrl.match(/gid=([0-9]+)/)?.[1] || "0";
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+
+        logDiagnostic(`Resolved CSV URL: ${csvUrl}`);
+
+        // timeout guard
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(csvUrl, {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        logDiagnostic(`HTTP status: ${response.status}`);
+
+        if (!response.ok) {
+            throw new Error(`Google Sheets fetch failed (HTTP ${response.status}). Check sharing permissions.`);
+        }
+
+        const csvData = await response.text();
+        logDiagnostic(`CSV payload length: ${csvData.length}`);
+
+        if (!csvData || csvData.trim().length === 0) {
+            throw new Error("Received empty CSV response.");
+        }
+
+        // Detect HTML error payloads
+        if (csvData.trim().startsWith("<!DOCTYPE html") || csvData.trim().startsWith("<html")) {
+            throw new Error("Received HTML instead of CSV. Sheet likely not publicly viewable.");
+        }
+
+        parseSpreadsheetCSV(csvData);
+
+        if (!Array.isArray(cardDatabase) || cardDatabase.length === 0) {
+            safeShowWarning();
+            triggerToast("No Rows Parsed", "Connected, but no valid rows were parsed from sheet.", "warning");
+            logDiagnostic("Sync completed but cardDatabase is empty.");
+        } else {
+            safeHideWarning();
+            triggerToast("Sync Complete", `Loaded ${cardDatabase.length} items from spreadsheet.`, "success");
+            logDiagnostic(`Sync success. Parsed rows: ${cardDatabase.length}`);
+        }
+    } catch (err) {
+        logDiagnostic(`Sync error: ${err.name || "Error"} - ${err.message}`);
+        safeShowWarning();
+        triggerToast("Sync Failed", err.message || "Could not load spreadsheet data.", "error");
+    } finally {
+        safeHideLoader();
+    }
+}
+
+function parseSpreadsheetCSV(text) {
+    const lines = [];
+    let row = [""];
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+            if (inQuotes && next === '"') {
+                row[row.length - 1] += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            row.push('');
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+            if (char === '\r' && next === '\n') i++;
+            lines.push(row);
+            row = [''];
+        } else {
+            row[row.length - 1] += char;
+        }
+    }
+    if (row.length > 1 || row[0] !== '') lines.push(row);
+
+    if (lines.length < 2) {
+        cardDatabase = [];
+        filteredDatabase = [];
+        renderGrid();
+        logDiagnostic("CSV parsed but no data rows found.");
+        return;
+    }
+
+    const headers = lines[0].map(h => (h || '').trim().toUpperCase());
+    logDiagnostic(`Detected headers: ${JSON.stringify(headers)}`);
+
+    const idxGame = headers.findIndex(h => h.includes('GAME') || h.includes('CATEGORY') || h.includes('UNIVERSE'));
+    const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME') || h.includes('ITEM'));
+    const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER') || h.includes('SCALE'));
+    const idxRarity = headers.findIndex(h => h.includes('RARITY') || h.includes('GRADE'));
+    const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
+    const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
+    const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
+    const idxSource = headers.findIndex(h => h.includes('SOURCE'));
+    const idxDate = headers.findIndex(h => h.includes('DATE'));
+    const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE') || h.includes('CONDITION'));
+    const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE') || h.includes('PHOTO'));
+    const idxEbay = headers.findIndex(h => h.includes('EBAY'));
+
+    if (idxName === -1) {
+        cardDatabase = [];
+        filteredDatabase = [];
+        renderGrid();
+        logDiagnostic("No NAME/CHARACTER/ITEM column found. Cannot parse rows.");
+        return;
+    }
+
+    const parsed = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line || line.length === 0) continue;
+
+        const name = (line[idxName] || '').trim();
+        if (!name) continue;
+
+        const qty = parseInt((line[idxQty] || '1').toString().trim(), 10);
+        parsed.push({
+            game: idxGame !== -1 ? (line[idxGame] || 'Other').trim() : 'Other',
+            name,
+            code: idxCode !== -1 ? (line[idxCode] || '').trim() : '',
+            rarity: idxRarity !== -1 ? (line[idxRarity] || '').trim() : '',
+            qty: Number.isFinite(qty) && qty > 0 ? qty : 1,
+            lowest_price: idxLowest !== -1 ? (line[idxLowest] || '').trim() : '',
+            highest_price: idxHighest !== -1 ? (line[idxHighest] || '').trim() : '',
+            source: idxSource !== -1 ? (line[idxSource] || '').trim() : '',
+            date: idxDate !== -1 ? (line[idxDate] || '').trim() : '',
+            remark: idxRemark !== -1 ? (line[idxRemark] || '').trim() : '',
+            image: idxImage !== -1 ? (line[idxImage] || '').trim() : '',
+            ebay_search_term: idxEbay !== -1 ? (line[idxEbay] || '').trim() : ''
+        });
+    }
+
+    cardDatabase = parsed;
+    renderGameFilters();
+    applyFilters();
+}
 
         // Parser mapping exactly to your 11 columns
         function parseSpreadsheetCSV(text) {
