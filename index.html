@@ -673,6 +673,16 @@
             return isNaN(num) ? 0 : num;
         }
 
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
         // Build dynamic game filter elements
         function renderGameFilters() {
             const container = document.getElementById('game-filter-container');
@@ -1027,12 +1037,12 @@
                 return;
             }
 
-            if (parsedSheetUrl.hostname !== 'docs.google.com' || !parsedSheetUrl.pathname.startsWith('/spreadsheets/')) {
+            if (parsedSheetUrl.protocol !== 'https:' || parsedSheetUrl.hostname !== 'docs.google.com' || !parsedSheetUrl.pathname.startsWith('/spreadsheets/')) {
                 triggerToast("Error", "Invalid Google Sheets URL", "error");
                 return;
             }
 
-            if (parsedScriptUrl.hostname !== 'script.google.com' || !parsedScriptUrl.pathname.startsWith('/macros/')) {
+            if (parsedScriptUrl.protocol !== 'https:' || parsedScriptUrl.hostname !== 'script.google.com' || !parsedScriptUrl.pathname.startsWith('/macros/')) {
                 triggerToast("Error", "Invalid Google Apps Script URL", "error");
                 return;
             }
@@ -1061,10 +1071,13 @@
             document.getElementById('pricing-sources').classList.add('hidden');
 
             try {
+                const safeCardName = escapeHtml(cardName);
+                const safeGameName = escapeHtml(currentlySelectedCard.game);
+
                 // Since we can't directly scrape Google from the browser, show a guidance message instead
                 document.getElementById('pricing-results').innerHTML = `
-                    <p class="text-sm text-amber-300">Market data search initiated for: <strong>${cardName}</strong></p>
-                    <p class="text-xs text-slate-400 mt-2">Note: For accurate pricing, check TCGPlayer, eBay, or CardMarket directly for your ${currentlySelectedCard.game} item.</p>
+                    <p class="text-sm text-amber-300">Market data search initiated for: <strong>${safeCardName}</strong></p>
+                    <p class="text-xs text-slate-400 mt-2">Note: For accurate pricing, check TCGPlayer, eBay, or CardMarket directly for your ${safeGameName} item.</p>
                 `;
                 document.getElementById('pricing-results').classList.remove('hidden');
                 
