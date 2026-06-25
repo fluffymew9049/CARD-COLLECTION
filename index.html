@@ -326,53 +326,6 @@
         </div>
     </div>
 
-    <!-- Connection Dialog Modal -->
-  
-            
-            <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-                <!-- READ SETTINGS -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> 1. Read Connection
-                    </label>
-                    <span class="text-[10px] text-slate-400 block mb-1">Google Sheets Edit Link</span>
-                    <input id="sheet-url-input" type="text" placeholder="https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?usp=sharing" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
-                </div>
-
-                <!-- WRITE SETTINGS -->
-                <div class="space-y-1.5 border-t border-slate-900 pt-3">
-                    <label class="text-xs font-bold text-orange-400 uppercase tracking-wide flex items-center gap-1.5">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> 2. Write Connection (Apps Script)
-                    </label>
-                    <span class="text-[10px] text-slate-400 block mb-1">Google Apps Script Web App URL (For Manual Add Save)</span>
-                    <input id="script-url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
-                </div>
-
-                <!-- HELP BLOCK -->
-                <div class="bg-slate-900/60 p-3 rounded-xl text-[10px] text-slate-400 space-y-2 leading-relaxed">
-                    <p class="font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1">
-                        <i class="fa-solid fa-circle-question text-amber-400"></i> Setup Quick Guide:
-                    </p>
-                    <ol class="list-decimal list-inside space-y-1 text-slate-300">
-                        <li>Ensure Google Sheet is set to <strong class="text-white">"Anyone with the link can view"</strong>.</li>
-                        <li>In Google Sheets, open <strong class="text-white">Extensions > Apps Script</strong>, paste your deployment code, and save.</li>
-                    </ol>
-                </div>
-
-                <div class="flex gap-2 pt-2">
-                    <button onclick="saveDbSettings()" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition hover:bg-amber-400 uppercase">Save & Sync</button>
-                </div>
-                
-                <!-- Connection logs for diagnostics/debugging -->
-                <div class="border-t border-slate-900 pt-3">
-                    <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Sync Diagnostics</p>
-                    <div id="diagnostic-log" class="bg-slate-950 border border-slate-900 rounded-lg p-2.5 h-24 overflow-y-auto text-[9px] font-mono text-slate-400 leading-normal space-y-0.5">
-                        <!-- Diagnostic console logs output here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Backdrop overlay for slide-out drawer -->
     <div id="backdrop-drawer" onclick="closeDrawer()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
@@ -496,8 +449,11 @@
             }
 
             // Populate connection input fields
-            document.getElementById('sheet-url-input').value = localStorage.getItem('tcg_sheet_url') || "";
-            document.getElementById('script-url-input').value = localStorage.getItem('tcg_script_url') || "";
+            const sheetInput = document.getElementById('sheet-url-input');
+if (sheetInput) sheetInput.value = localStorage.getItem('tcg_sheet_url') || "";
+
+const scriptInput = document.getElementById('script-url-input');
+if (scriptInput) scriptInput.value = localStorage.getItem('tcg_script_url') || "";
 
             logDiagnostic("App initialized. Pre-loaded your configured Sheet & Script endpoints.");
             
