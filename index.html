@@ -1012,6 +1012,11 @@
             const sheetUrl = document.getElementById('sheet-url-input').value;
             const scriptUrl = document.getElementById('script-url-input').value;
 
+            if (!sheetUrl || !scriptUrl) {
+                triggerToast("Error", "Both Sheet URL and Script URL are required.", "error");
+                return;
+            }
+
             if (!sheetUrl.includes('docs.google.com/spreadsheets')) {
                 triggerToast("Error", "Invalid Google Sheets URL", "error");
                 return;
