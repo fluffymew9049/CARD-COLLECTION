@@ -550,84 +550,66 @@
     const loader = document.getElementById('loader-view');
     const warning = document.getElementById('sync-warning');
 
-    const safeHideLoader = () => { if (loader) loader.classList.add('hidden'); };
-    const safeShowLoader = () => { if (loader) loader.classList.remove('hidden'); };
-    const safeShowWarning = () => { if (warning) warning.classList.remove('hidden'); };
-    const safeHideWarning = () => { if (warning) warning.classList.add('hidden'); };
+    const showLoader = () => { if (loader) loader.classList.remove('hidden'); };
+    const hideLoader = () => { if (loader) loader.classList.add('hidden'); };
+    const showWarning = () => { if (warning) warning.classList.remove('hidden'); };
+    const hideWarning = () => { if (warning) warning.classList.add('hidden'); };
 
     const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
 
     if (!rawSheetUrl) {
-        logDiagnostic("No Google Sheet URL configured in localStorage (tcg_sheet_url).");
-        safeHideLoader();
-        safeShowWarning();
-        triggerToast("Missing Sheet URL", "Please set your Google Sheet URL in Database Connections.", "error");
+        logDiagnostic("No sheet URL found in localStorage key: tcg_sheet_url");
+        showWarning();
+        hideLoader();
         return;
     }
 
-    safeShowLoader();
-    safeHideWarning();
-    logDiagnostic(`Starting sync using URL: ${rawSheetUrl}`);
+    showLoader();
+    hideWarning();
+    logDiagnostic(`Sync start: ${rawSheetUrl}`);
 
     try {
         const idMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
-        if (!idMatch || !idMatch[1]) {
-            throw new Error("Invalid Google Sheet URL format. Could not extract Sheet ID.");
-        }
+        if (!idMatch) throw new Error("Invalid Google Sheet URL: cannot extract sheet ID.");
 
         const sheetId = idMatch[1];
         const gid = rawSheetUrl.match(/gid=([0-9]+)/)?.[1] || "0";
         const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
 
-        logDiagnostic(`Resolved CSV URL: ${csvUrl}`);
+        logDiagnostic(`Fetching CSV: ${csvUrl}`);
 
-        // timeout guard
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
 
-        const response = await fetch(csvUrl, {
-            method: "GET",
-            cache: "no-store",
-            signal: controller.signal
-        });
-
+        const response = await fetch(csvUrl, { signal: controller.signal, cache: "no-store" });
         clearTimeout(timeout);
 
         logDiagnostic(`HTTP status: ${response.status}`);
-
-        if (!response.ok) {
-            throw new Error(`Google Sheets fetch failed (HTTP ${response.status}). Check sharing permissions.`);
-        }
+        if (!response.ok) throw new Error(`Fetch failed: HTTP ${response.status}`);
 
         const csvData = await response.text();
-        logDiagnostic(`CSV payload length: ${csvData.length}`);
+        logDiagnostic(`CSV length: ${csvData.length}`);
 
-        if (!csvData || csvData.trim().length === 0) {
-            throw new Error("Received empty CSV response.");
-        }
-
-        // Detect HTML error payloads
-        if (csvData.trim().startsWith("<!DOCTYPE html") || csvData.trim().startsWith("<html")) {
-            throw new Error("Received HTML instead of CSV. Sheet likely not publicly viewable.");
-        }
+        if (!csvData || !csvData.trim()) throw new Error("Empty CSV returned.");
+        if (csvData.trim().startsWith("<")) throw new Error("Got HTML instead of CSV. Check sheet sharing.");
 
         parseSpreadsheetCSV(csvData);
 
-        if (!Array.isArray(cardDatabase) || cardDatabase.length === 0) {
-            safeShowWarning();
-            triggerToast("No Rows Parsed", "Connected, but no valid rows were parsed from sheet.", "warning");
-            logDiagnostic("Sync completed but cardDatabase is empty.");
+        if (!cardDatabase || cardDatabase.length === 0) {
+            showWarning();
+            triggerToast("No Data Parsed", "Sheet loaded but no valid rows found.", "warning");
+            logDiagnostic("Parse complete: 0 rows.");
         } else {
-            safeHideWarning();
-            triggerToast("Sync Complete", `Loaded ${cardDatabase.length} items from spreadsheet.`, "success");
-            logDiagnostic(`Sync success. Parsed rows: ${cardDatabase.length}`);
+            hideWarning();
+            triggerToast("Sync Complete", `Loaded ${cardDatabase.length} rows.`, "success");
+            logDiagnostic(`Parse complete: ${cardDatabase.length} rows.`);
         }
     } catch (err) {
-        logDiagnostic(`Sync error: ${err.name || "Error"} - ${err.message}`);
-        safeShowWarning();
-        triggerToast("Sync Failed", err.message || "Could not load spreadsheet data.", "error");
+        showWarning();
+        logDiagnostic(`Sync error: ${err.message}`);
+        triggerToast("Sync Failed", err.message || "Unknown error", "error");
     } finally {
-        safeHideLoader();
+        hideLoader();
     }
 }
 
