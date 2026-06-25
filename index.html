@@ -289,7 +289,7 @@
                 </div>
                 <div>
                     <p class="font-bold text-slate-200 mb-1">2. Paste Direct Links</p>
-                    <p class="text-slate-400">Paste direct image links that end with extensions like <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.jpg</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.png</code>, or <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.gif</code>.</p>
+                    <p class="text-slate-400">Paste direct image links that end with extensions like <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.jpg</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.png</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.webp</code>, or <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.gif</code>.</p>
                 </div>
                 <div>
                     <p class="font-bold text-slate-200 mb-1">3. Hosting Photos (Free)</p>
@@ -1011,18 +1011,28 @@
         function saveDbSettings() {
             const sheetUrl = document.getElementById('sheet-url-input').value;
             const scriptUrl = document.getElementById('script-url-input').value;
+            let parsedSheetUrl;
+            let parsedScriptUrl;
 
             if (!sheetUrl || !scriptUrl) {
                 triggerToast("Error", "Both Sheet URL and Script URL are required.", "error");
                 return;
             }
 
-            if (!sheetUrl.includes('docs.google.com/spreadsheets')) {
+            try {
+                parsedSheetUrl = new URL(sheetUrl);
+                parsedScriptUrl = new URL(scriptUrl);
+            } catch (err) {
+                triggerToast("Error", "Enter valid Google Sheets and Apps Script URLs", "error");
+                return;
+            }
+
+            if (parsedSheetUrl.hostname !== 'docs.google.com' || !parsedSheetUrl.pathname.startsWith('/spreadsheets/')) {
                 triggerToast("Error", "Invalid Google Sheets URL", "error");
                 return;
             }
 
-            if (!scriptUrl.includes('script.google.com/macros')) {
+            if (parsedScriptUrl.hostname !== 'script.google.com' || !parsedScriptUrl.pathname.startsWith('/macros/')) {
                 triggerToast("Error", "Invalid Google Apps Script URL", "error");
                 return;
             }
