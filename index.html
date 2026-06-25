@@ -545,7 +545,74 @@
             }, 4000);
         }
 
-        // Sync Database: Bypasses browser CORS using visualization endpoint
+        function extractSheetInfo(sheetUrl) {
+            if (!sheetUrl) return null;
+
+            const idMatch = sheetUrl.match(/\/d\/([^\/?#]+)/);
+            if (!idMatch) return null;
+
+            const gidMatch = sheetUrl.match(/[?#&]gid=([0-9]+)/);
+            return {
+                fileId: idMatch[1],
+                gid: gidMatch ? gidMatch[1] : '0'
+            };
+        }
+
+        function buildSheetFetchUrls(rawSheetUrl) {
+            const urls = [];
+            const trimmedUrl = (rawSheetUrl || '').trim();
+            if (!trimmedUrl) return urls;
+
+            if (
+                trimmedUrl.includes('output=csv') ||
+                trimmedUrl.includes('format=csv') ||
+                trimmedUrl.includes('/gviz/tq')
+            ) {
+                urls.push(trimmedUrl);
+            }
+
+            if (trimmedUrl.includes('/pubhtml')) {
+                urls.push(trimmedUrl.replace('/pubhtml', '/pub?output=csv'));
+            } else if (trimmedUrl.includes('/pub?')) {
+                urls.push(trimmedUrl.includes('output=csv') ? trimmedUrl : `${trimmedUrl}&output=csv`);
+            }
+
+            const sheetInfo = extractSheetInfo(trimmedUrl);
+            if (!sheetInfo) return urls;
+
+            const { fileId, gid } = sheetInfo;
+            urls.push(`https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv&gid=${gid}`);
+            urls.push(`https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&gid=${gid}`);
+
+            return [...new Set(urls)];
+        }
+
+        async function fetchTextWithTimeout(url, timeoutMs = 12000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP network error: status ${response.status}`);
+                }
+
+                return await response.text();
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+                }
+                throw error;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        // Sync Database: tries multiple public Google Sheets CSV endpoints and fails fast on stalled requests
         async function syncDatabase() {
             const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
             if (!rawSheetUrl) {
@@ -560,25 +627,28 @@
             logDiagnostic("Initiating background spreadsheet fetch...");
 
             try {
-                // Convert Google Sheet edit URL into Gviz CSV export format (bulletproof CORS-bypass)
-                let directCsvUrl = rawSheetUrl;
-                if (rawSheetUrl.includes('/d/') && rawSheetUrl.includes('/edit')) {
-                    const baseMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
-                    if (baseMatch) {
-                        const fileId = baseMatch[1];
-                        // Match gid if present
-                        let gid = "0";
-                        const gidMatch = rawSheetUrl.match(/gid=([0-9]+)/);
-                        if (gidMatch) gid = gidMatch[1];
-                        directCsvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+                const fetchUrls = buildSheetFetchUrls(rawSheetUrl);
+                let csvData = '';
+                let lastError = null;
+
+                for (const url of fetchUrls) {
+                    try {
+                        logDiagnostic(`Trying sheet stream: ${url}`);
+                        csvData = await fetchTextWithTimeout(url);
+                        if (csvData && csvData.trim()) {
+                            break;
+                        }
+                        throw new Error('Spreadsheet response was empty.');
+                    } catch (error) {
+                        lastError = error;
+                        logDiagnostic(`Sheet stream failed: ${error.message}`);
                     }
                 }
 
-                logDiagnostic(`Targeting optimized stream: ${directCsvUrl}`);
-                const response = await fetch(directCsvUrl);
-                if (!response.ok) throw new Error(`HTTP network error: status ${response.status}`);
-                
-                const csvData = await response.text();
+                if (!csvData || !csvData.trim()) {
+                    throw lastError || new Error('Unable to fetch spreadsheet data.');
+                }
+
                 parseSpreadsheetCSV(csvData);
                 
                 logDiagnostic(`Sync complete. Loaded ${cardDatabase.length} entries.`);
