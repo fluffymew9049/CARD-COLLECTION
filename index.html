@@ -857,10 +857,9 @@
         }
 
 // Open Slide up Drawer with Card/Item Info
-function openDrawer(card) {
+ffunction openDrawer(card) {
     currentlySelectedCard = card;
 
-    // Helper safely assigning layout elements
     const setEl = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
@@ -872,16 +871,16 @@ function openDrawer(card) {
     setEl('drawer-code', card.code || "No Set/Code Assigned");
     setEl('drawer-qty', card.qty);
 
-    const lowestEl = document.getElementById('drawer-lowest-price');
-    if (lowestEl) {
-        lowestEl.textContent = card.lowest_price
+    const lowEl = document.getElementById('drawer-lowest-price');
+    if (lowEl) {
+        lowEl.textContent = card.lowest_price
             ? `$${cleanPrice(card.lowest_price).toFixed(2)}`
             : "$0.00";
     }
 
-    const highestEl = document.getElementById('drawer-highest-price');
-    if (highestEl) {
-        highestEl.textContent = card.highest_price
+    const highEl = document.getElementById('drawer-highest-price');
+    if (highEl) {
+        highEl.textContent = card.highest_price
             ? `$${cleanPrice(card.highest_price).toFixed(2)}`
             : "$0.00";
     }
@@ -890,7 +889,6 @@ function openDrawer(card) {
     setEl('drawer-date', card.date || "-");
     setEl('drawer-remark', card.remark || "No conditional notes saved for this item.");
 
-    // Reset AI lookup panels safely
     const resultsEl = document.getElementById('pricing-results');
     if (resultsEl) {
         resultsEl.classList.add('hidden');
@@ -900,8 +898,8 @@ function openDrawer(card) {
     const sourcesEl = document.getElementById('pricing-sources');
     if (sourcesEl) {
         sourcesEl.classList.add('hidden');
-        const list = document.getElementById('sources-list');
-        if (list) list.innerHTML = '';
+        const sourceList = document.getElementById('sources-list');
+        if (sourceList) sourceList.innerHTML = '';
     }
 
     const btnEl = document.getElementById('fetch-price-btn');
@@ -910,7 +908,6 @@ function openDrawer(card) {
         btnEl.disabled = false;
     }
 
-    // Handle drawer card preview image
     const container = document.getElementById('drawer-image-container');
     if (container) {
         if (card.image && card.image.trim().startsWith('http')) {
@@ -925,7 +922,6 @@ function openDrawer(card) {
         }
     }
 
-    // eBay search term fallback
     const trackingTerm =
         card.ebay_search_term ||
         card['ebay search term'] ||
@@ -936,22 +932,12 @@ function openDrawer(card) {
         loadLiveEbayData(trackingTerm);
     }
 
-    // Animate layout open
-    const backdrop = document.getElementById('backdrop-drawer');
-    const drawer = document.getElementById('spec-drawer');
-    if (backdrop && drawer) {
-        backdrop.classList.remove('hidden');
-        setTimeout(() => {
-            backdrop.classList.add('opacity-100');
-            drawer.classList.add('active');
-        }, 10);
-    }
-}t(() => {
-                document.getElementById('backdrop-drawer').classList.add('opacity-100');
-                document.getElementById('spec-drawer').classList.add('active');
-            }, 10);
-        }
-
+    document.getElementById('backdrop-drawer').classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('backdrop-drawer').classList.add('opacity-100');
+        document.getElementById('spec-drawer').classList.add('active');
+    }, 10);
+}
         // Close drawer panel
         function closeDrawer() {
             document.getElementById('backdrop-drawer').classList.remove('opacity-100');
