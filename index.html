@@ -113,7 +113,7 @@
             <!-- Search field -->
             <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-                <input id="search-input" type="text" oninput="applyFilters()" placeholder="Search names, codes, categories..." class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl pl-10 pr-4 py-2.5 text-slate-100 text-sm focus:ring-1 focus:ring-amber-500 focus:outline-none transition">
+                <input id="search-input" type="text" oninput="applyFilters()" placeholder="Search names, codes, categories..." class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl pl-10 pr-4 py-3 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition">
             </div>
 
             <!-- Game/Universe Filters row (Dynamically loaded from spreadsheet columns) -->
@@ -155,7 +155,7 @@
     <!-- Manual Add Button Floating Action Bar -->
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 max-w-md w-full px-4 flex gap-3 justify-center">
         <!-- Manual Add Button -->
-        <button onclick="openManualAdd()" class="flex-1 flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-2xl text-xs transition shadow-lg">
+        <button onclick="openManualAdd()" class="flex-1 flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-sm rounded-2xl transition shadow-lg uppercase tracking-wider">
             <i class="fa-solid fa-pen-to-square text-sm"></i>
             Add Manually
         </button>
@@ -189,7 +189,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Category / Universe</label>
-                        <select id="manual-input-game" onchange="handleCategorySelectionChange()" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                        <select id="manual-input-game" onchange="handleCategorySelectionChange()" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:outline-none focus:ring-1 focus:ring-amber-500">
                             <option value="Pokémon">POKÉMON</option>
                             <option value="Naruto">NARUTO</option>
                             <option value="Figures">FIGURES</option>
@@ -229,11 +229,11 @@
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Lowest Price</label>
-                        <input id="manual-input-lowest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., $10">
+                        <input id="manual-input-lowest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., $5.00">
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Highest Price</label>
-                        <input id="manual-input-highest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., $50">
+                        <input id="manual-input-highest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., $25.00">
                     </div>
                 </div>
 
@@ -242,7 +242,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Acquisition Source</label>
-                            <input id="manual-input-source" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., eBay">
+                            <input id="manual-input-source" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
                         </div>
                         <div>
                             <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Date Logged</label>
@@ -251,18 +251,18 @@
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Image Link (Optional URL)</label>
-                        <input id="manual-input-image" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono truncate focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="https://...">
+                        <input id="manual-input-image" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono truncate focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="https://example.com/image.jpg">
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Remarks & Condition Notes</label>
-                        <textarea id="manual-input-remark" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="Condition, notes, etc."></textarea>
+                        <textarea id="manual-input-remark" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none resize-none" placeholder="Optional notes..."></textarea>
                     </div>
                 </div>
 
                 <!-- Action Triggers -->
                 <div class="flex gap-2.5 pt-3 border-t border-slate-900">
                     <button type="button" onclick="cancelManualAdd()" class="w-1/3 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl">CANCEL</button>
-                    <button type="submit" id="manual-save-btn" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-xl">
+                    <button type="submit" id="manual-save-btn" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-xl transition uppercase tracking-wider">
                         SAVE TO SHEET
                     </button>
                 </div>
@@ -289,11 +289,11 @@
                 </div>
                 <div>
                     <p class="font-bold text-slate-200 mb-1">2. Paste Direct Links</p>
-                    <p class="text-slate-400">Paste direct image links that end with extensions like <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.jpg</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.png</code>, or <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.webp</code>.</p>
+                    <p class="text-slate-400">Paste direct image links that end with extensions like <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.jpg</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.png</code>, or <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.gif</code>.</p>
                 </div>
                 <div>
                     <p class="font-bold text-slate-200 mb-1">3. Hosting Photos (Free)</p>
-                    <p class="text-slate-400">If you photograph your own items or boxes, upload them to free direct hosting platforms such as <a href="https://postimages.org" target="_blank" class="text-emerald-400 hover:underline">PostImage</a> or <a href="https://imgur.com" target="_blank" class="text-emerald-400 hover:underline">Imgur</a>.</p>
+                    <p class="text-slate-400">If you photograph your own items or boxes, upload them to free direct hosting platforms such as <a href="https://postimages.org" target="_blank" class="text-emerald-400 underline">PostImages</a> or <a href="https://imgur.com" target="_blank" class="text-emerald-400 underline">Imgur</a>.</p>
                 </div>
                 <div class="bg-emerald-950/40 border border-emerald-900/50 p-3 rounded-xl text-emerald-300">
                     <p class="font-semibold flex items-center gap-1.5 mb-1">
@@ -325,7 +325,7 @@
                         <i class="fa-solid fa-cloud-arrow-down"></i> 1. Read Connection
                     </label>
                     <span class="text-[10px] text-slate-400 block mb-1">Google Sheets Edit Link</span>
-                    <input id="sheet-url-input" type="text" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    <input id="sheet-url-input" type="text" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500">
                 </div>
 
                 <!-- WRITE SETTINGS -->
@@ -334,7 +334,7 @@
                         <i class="fa-solid fa-cloud-arrow-up"></i> 2. Write Connection (Apps Script)
                     </label>
                     <span class="text-[10px] text-slate-400 block mb-1">Google Apps Script Web App URL (For Manual Add Save)</span>
-                    <input id="script-url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    <input id="script-url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-orange-500">
                 </div>
 
                 <!-- HELP BLOCK -->
@@ -349,7 +349,7 @@
                 </div>
 
                 <div class="flex gap-2 pt-2">
-                    <button onclick="saveDbSettings()" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition hover:bg-amber-400 uppercase">Save & Sync</button>
+                    <button onclick="saveDbSettings()" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition hover:bg-amber-400 uppercase">Save & Sync Now</button>
                 </div>
                 
                 <!-- Connection logs for diagnostics/debugging -->
@@ -402,19 +402,8 @@
                 <div class="text-center border-l border-slate-800/60">
                     <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wide">Highest Value</span>
                     <p id="drawer-highest-price" class="text-sm font-extrabold text-amber-400 mt-0.5">$0.00</p>
-                </div>    
+                </div>
             </div>
-            <div id="ebay-tracker-section" class="border-t border-slate-800 mt-4 pt-3">
-    <div class="flex justify-between items-center mb-2">
-        <label class="text-[10px] uppercase font-bold text-amber-500 flex items-center gap-1">
-            <span>🔄</span> Live eBay Market Data
-        </label>
-        <span id="ebay-average-price" class="text-xs font-bold text-slate-300">--</span>
-    </div>
-    <div id="ebay-listings-container" class="bg-slate-950 border border-slate-900 rounded-xl p-2 max-h-40 overflow-y-auto text-xs text-slate-400 scrollbar-thin">
-        <p class="text-slate-600 italic text-center py-2">Select an item to scan live marketplace data...</p>
-    </div>
-</div>
 
             <!-- Collector Specific Metadata Blocks -->
             <div class="grid grid-cols-2 gap-3.5 pt-1">
@@ -451,7 +440,7 @@
                 </button>
 
                 <!-- Pricing results output frame -->
-                <div id="pricing-results" class="hidden bg-slate-900/50 rounded-xl p-3 border border-slate-800/80 space-y-2 leading-relaxed text-[11px]">
+                <div id="pricing-results" class="hidden bg-slate-900/50 rounded-xl p-3 border border-slate-800/80 space-y-2 leading-relaxed">
                     <!-- Pricing text stream goes here -->
                 </div>
                 <div id="pricing-sources" class="hidden text-[10px] text-slate-400 bg-slate-900/20 p-2.5 rounded-lg border border-slate-900 space-y-1">
@@ -830,7 +819,7 @@
                 if (card.image && card.image.trim().startsWith('http')) {
                     imgBlockHTML = `
                         <div class="w-full aspect-[3/4] overflow-hidden relative bg-slate-950 border-b border-slate-800 flex items-center justify-center">
-                            <img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.outerHTML='<div class=\\'p-4 text-[11px] text-slate-400 text-center\\'>Image unavailable</div>'">
+                            <img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.outerHTML='<div class=\\'p-4 text-[11px] text-slate-500\\'>Image Failed</div>'">
                             <span class="absolute top-2 left-2 text-[8px] bg-slate-950/80 backdrop-blur-md text-amber-400 font-bold tracking-wider px-1.5 py-0.5 rounded-full border border-slate-800">${card.game}</span>
                         </div>
                     `;
@@ -857,65 +846,42 @@
         }
 
         // Open Slide up Drawer with Card/Item Info
-function openDrawer(card) {
-    currentlySelectedCard = card;
+        function openDrawer(card) {
+            currentlySelectedCard = card;
 
-    // Helper safely assigning layout elements
-    const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-    
-    setEl('drawer-game', card.game);
-    setEl('drawer-rarity', card.rarity || 'Item');
-    setEl('drawer-name', card.name);
-    setEl('drawer-code', card.code || "No Set/Code Assigned");
-    setEl('drawer-qty', card.qty);
-    
-    if(document.getElementById('drawer-lowest-price')) {
-        document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
-    }
-    if(document.getElementById('drawer-highest-price')) {
-        document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
-    }
+            document.getElementById('drawer-game').textContent = card.game;
+            document.getElementById('drawer-rarity').textContent = card.rarity || 'Item';
+            document.getElementById('drawer-name').textContent = card.name;
+            document.getElementById('drawer-code').textContent = card.code || "No Set/Code Assigned";
+            document.getElementById('drawer-qty').textContent = card.qty;
+            
+            document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
+            document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
 
-    setEl('drawer-source', card.source || "-");
-    setEl('drawer-date', card.date || "-");
-    setEl('drawer-remark', card.remark || "No conditional notes saved for this item.");
+            document.getElementById('drawer-source').textContent = card.source || "-";
+            document.getElementById('drawer-date').textContent = card.date || "-";
+            document.getElementById('drawer-remark').textContent = card.remark || "No conditional notes saved for this item.";
 
-    // Reset AI lookup panels safely
-    const resultsEl = document.getElementById('pricing-results');
-    if (resultsEl) { resultsEl.classList.add('hidden'); resultsEl.innerHTML = ''; }
-    
-    const sourcesEl = document.getElementById('pricing-sources');
-    if (sourcesEl) { sourcesEl.classList.add('hidden'); sourcesEl.innerHTML = ''; }
-    
-    const btnEl = document.getElementById('fetch-price-btn');
-    if (btnEl) {
-        btnEl.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
-        btnEl.disabled = false;
-    }
+            // Reset AI lookup panel
+            document.getElementById('pricing-results').classList.add('hidden');
+            document.getElementById('pricing-results').innerHTML = '';
+            document.getElementById('pricing-sources').classList.add('hidden');
+            document.getElementById('sources-list').innerHTML = '';
+            document.getElementById('fetch-price-btn').innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+            document.getElementById('fetch-price-btn').disabled = false;
 
-    // Handle drawer card preview image
-    const container = document.getElementById('drawer-image-container');
-    if (container) {
-        if (card.image && card.image.trim().startsWith('http')) {
-            container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover rounded-xl">`;
-        } else {
-            container.innerHTML = `
-                <div class="text-center p-2 text-slate-500">
-                    <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
-                    <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
-                </div>
-            `;
-        }
-    }
-
-    // Safely look for your eBay Search Term column data (handles space conversion mapping)
-    const trackingTerm = card.ebay_search_term || card['ebay search term'] || card.code || card.name;
-    loadLiveEbayData(trackingTerm);
-}
-
-    // NEW: Kick off the eBay marketplace background tracking using column L
-    loadLiveEbayData(card.ebay_search_term);
-}
+            // Handle drawer card preview
+            const container = document.getElementById('drawer-image-container');
+            if (card.image && card.image.trim().startsWith('http')) {
+                container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover">`;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center p-2 text-slate-500">
+                        <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
+                        <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
+                    </div>
+                `;
+            }
 
             // Animate layout open
             document.getElementById('backdrop-drawer').classList.remove('hidden');
@@ -1041,195 +1007,59 @@ function openDrawer(card) {
             modal.classList.toggle('hidden');
         }
 
-        // Save database settings to localStorage
+        // Save database connection settings
         function saveDbSettings() {
             const sheetUrl = document.getElementById('sheet-url-input').value;
             const scriptUrl = document.getElementById('script-url-input').value;
 
-            if (!sheetUrl || !scriptUrl) {
-                triggerToast("Error", "Both Sheet URL and Script URL are required.", "error");
+            if (!sheetUrl.includes('docs.google.com/spreadsheets')) {
+                triggerToast("Error", "Invalid Google Sheets URL", "error");
                 return;
             }
 
             localStorage.setItem('tcg_sheet_url', sheetUrl);
             localStorage.setItem('tcg_script_url', scriptUrl);
-            
-            logDiagnostic("Database settings saved successfully.");
-            triggerToast("Success", "Settings saved! Syncing now...", "success");
-            
-            setTimeout(() => {
-                syncDatabase();
-            }, 1000);
+            logDiagnostic("Settings saved. Starting sync...");
+
+            syncDatabase();
+            triggerToast("Success", "Settings saved & synced!", "success");
         }
 
-        // Live Market Price Fetching Engine
+        // Fetch live market prices for currently selected card
         async function fetchLiveMarketPrices() {
             if (!currentlySelectedCard) {
                 triggerToast("Error", "No card selected", "error");
                 return;
             }
 
-            const card = currentlySelectedCard;
-            const searchQuery = `${card.name} ${card.code} price`;
-            
+            const cardName = currentlySelectedCard.name;
             const btn = document.getElementById('fetch-price-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Searching market data...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Searching market...';
+
+            document.getElementById('pricing-results').classList.add('hidden');
+            document.getElementById('pricing-sources').classList.add('hidden');
 
             try {
-                // Use a simple web search via Google's public search (non-API approach)
-                // Since we need to bypass CORS, we'll construct search intent results
-                const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' price')}&hl=en`;
+                const query = `${cardName} ${currentlySelectedCard.game} price`;
+                const response = await fetch(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
                 
-                // For a true implementation, you would use:
-                // Option 1: Your own backend proxy endpoint
-                // Option 2: A free API service like serpapi.com (100 calls/month free)
-                // For now, we'll display helpful guidance
-                
-                const resultsDiv = document.getElementById('pricing-results');
-                const sourcesList = document.getElementById('sources-list');
-                
-                // Display search guidance
-                resultsDiv.innerHTML = `
-                    <div class="space-y-2">
-                        <p class="text-emerald-400 font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-lightbulb"></i> Search Tips
-                        </p>
-                        <p>Live market price fetching requires API access. Consider:</p>
-                        <ul class="list-disc list-inside text-slate-300 space-y-1 ml-2">
-                            <li>Use <strong>TCGPlayer</strong> or <strong>eBay</strong> directly for ${card.name}</li>
-                            <li>Search "<strong>${card.name} ${card.code}</strong>" on your preferred platform</li>
-                            <li>Compare multiple sources for accurate pricing</li>
-                        </ul>
-                    </div>
+                // Since we can't directly scrape Google, show a message
+                document.getElementById('pricing-results').innerHTML = `
+                    <p class="text-sm text-amber-300">Market data search initiated for: <strong>${cardName}</strong></p>
+                    <p class="text-xs text-slate-400 mt-2">Note: For accurate pricing, check TCGPlayer, eBay, or CardMarket directly for your ${currentlySelectedCard.game} item.</p>
                 `;
+                document.getElementById('pricing-results').classList.remove('hidden');
                 
-                sourcesList.innerHTML = `
-                    <li><a href="${googleSearchUrl}" target="_blank" class="text-emerald-400 hover:underline">Google Search: ${card.name}</a></li>
-                    <li><a href="https://www.tcgplayer.com/search/product/all?q=${encodeURIComponent(card.name)}" target="_blank" class="text-emerald-400 hover:underline">TCGPlayer</a></li>
-                    <li><a href="https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.name)}" target="_blank" class="text-emerald-400 hover:underline">eBay</a></li>
-                `;
-
-                resultsDiv.classList.remove('hidden');
-                document.getElementById('pricing-sources').classList.remove('hidden');
-
-                triggerToast("Quick Links Ready", "See search suggestions below", "info");
-
-            } catch (err) {
-                triggerToast("Error", `Search failed: ${err.message}`, "error");
-            } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices';
+                btn.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+            } catch (err) {
+                triggerToast("Error", "Could not fetch pricing data", "error");
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
             }
         }
-        async function loadLiveEbayData(ebaySearchTerm) {
-  const avgPriceEl = document.getElementById('ebay-average-price');
-  const containerEl = document.getElementById('ebay-listings-container');
-
-  if (!avgPriceEl || !containerEl) return; // Safeguard if elements aren't found
-
-  if (!ebaySearchTerm) {
-    avgPriceEl.innerText = "--";
-    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">No eBay tracking identifier provided for this card.</p>`;
-    return;
-  }
-
-  avgPriceEl.innerText = "Scanning...";
-  containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Fetching live listings from eBay...</p>`;
-
-  try {
-    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
-    const listings = await response.json();
-
-    if (!listings || listings.length === 0) {
-      avgPriceEl.innerText = "N/A";
-      containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2">No active listings found on eBay matching "${ebaySearchTerm}".</p>`;
-      return;
-    }
-
-    let totalPrice = 0;
-    let listingsHtml = '<div class="space-y-1.5">';
-
-    listings.forEach(item => {
-      const price = parseFloat(item.price.value);
-      totalPrice += price;
-
-      listingsHtml += `
-        <div class="flex justify-between items-center bg-slate-900/50 p-1.5 rounded hover:bg-slate-900 transition">
-          <a href="${item.itemWebUrl}" target="_blank" class="text-slate-300 hover:text-amber-400 truncate pr-2 max-w-[200px]" title="${item.title}">
-            🛍️ ${item.title}
-          </a>
-          <span class="font-bold text-amber-500 shrink-0">$${price.toFixed(2)}</span>
-        </div>`;
-    });
-
-    listingsHtml += '</div>';
-
-    const average = totalPrice / listings.length;
-    avgPriceEl.innerText = `Avg: $${average.toFixed(2)}`;
-    containerEl.innerHTML = listingsHtml;
-
-  } catch (error) {
-    console.error("eBay Fetch Error:", error);
-    avgPriceEl.innerText = "Error";
-    containerEl.innerHTML = `<p class="text-rose-500 italic text-center py-2">Failed to load real-time market metrics.</p>`;
-  }
-}async function loadLiveEbayData(ebaySearchTerm) {
-  const avgPriceEl = document.getElementById('ebay-average-price');
-  const containerEl = document.getElementById('ebay-listings-container');
-
-  // Guard clause to ensure elements are mounted before executing
-  if (!avgPriceEl || !containerEl) return; 
-
-  if (!ebaySearchTerm) {
-    avgPriceEl.innerText = "--";
-    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">No tracking keywords configured for this item.</p>`;
-    return;
-  }
-
-  avgPriceEl.innerText = "Scanning...";
-  containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Scanning eBay listings...</p>`;
-
-  try {
-    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
-    if (!response.ok) throw new Error("Function network response failed");
-    
-    const listings = await response.json();
-
-    if (!listings || listings.length === 0) {
-      avgPriceEl.innerText = "N/A";
-      containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2">No active marketplace listings match "${ebaySearchTerm}".</p>`;
-      return;
-    }
-
-    let totalPrice = 0;
-    let listingsHtml = '<div class="space-y-1.5">';
-
-    listings.forEach(item => {
-      const price = parseFloat(item.price.value);
-      totalPrice += price;
-
-      listingsHtml += `
-        <div class="flex justify-between items-center bg-slate-900/40 p-2 rounded-lg border border-slate-900/60 hover:border-slate-800 transition">
-          <a href="${item.itemWebUrl}" target="_blank" class="text-slate-300 hover:text-amber-400 truncate pr-2 max-w-[190px]" title="${item.title}">
-            🛍️ ${item.title}
-          </a>
-          <span class="font-bold text-amber-500 shrink-0">$${price.toFixed(2)}</span>
-        </div>`;
-    });
-
-    listingsHtml += '</div>';
-    const average = totalPrice / listings.length;
-    
-    avgPriceEl.innerText = `Avg: $${average.toFixed(2)}`;
-    containerEl.innerHTML = listingsHtml;
-
-  } catch (error) {
-    console.log("eBay connection tracking offline:", error);
-    avgPriceEl.innerText = "Offline";
-    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">Displaying fixed static valuations.</p>`;
-  }
-}
     </script>
+
 </body>
 </html>
