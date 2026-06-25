@@ -1022,6 +1022,11 @@
                 return;
             }
 
+            if (!scriptUrl.includes('script.google.com/macros')) {
+                triggerToast("Error", "Invalid Google Apps Script URL", "error");
+                return;
+            }
+
             localStorage.setItem('tcg_sheet_url', sheetUrl);
             localStorage.setItem('tcg_script_url', scriptUrl);
             logDiagnostic("Settings saved. Starting sync...");
@@ -1046,10 +1051,7 @@
             document.getElementById('pricing-sources').classList.add('hidden');
 
             try {
-                const query = `${cardName} ${currentlySelectedCard.game} price`;
-                const response = await fetch(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
-                
-                // Since we can't directly scrape Google, show a message
+                // Since we can't directly scrape Google from the browser, show a guidance message instead
                 document.getElementById('pricing-results').innerHTML = `
                     <p class="text-sm text-amber-300">Market data search initiated for: <strong>${cardName}</strong></p>
                     <p class="text-xs text-slate-400 mt-2">Note: For accurate pricing, check TCGPlayer, eBay, or CardMarket directly for your ${currentlySelectedCard.game} item.</p>
