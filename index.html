@@ -553,9 +553,16 @@
             if (!idMatch) return null;
 
             const gidMatch = sheetUrl.match(/[?#&]gid=([0-9]+)/);
+            const fileId = idMatch[1];
+            const gid = gidMatch ? gidMatch[1] : '0';
+
+            if (!/^[A-Za-z0-9_-]+$/.test(fileId) || !/^[0-9]+$/.test(gid)) {
+                return null;
+            }
+
             return {
-                fileId: idMatch[1],
-                gid: gidMatch ? gidMatch[1] : '0'
+                fileId,
+                gid
             };
         }
 
@@ -639,7 +646,7 @@
                         if (csvData && csvData.trim()) {
                             break;
                         }
-                        throw new Error(`Spreadsheet response was empty from ${url}`);
+                        throw new Error('Spreadsheet response was empty.');
                     } catch (error) {
                         lastError = error;
                         logDiagnostic(`Sheet stream failed: ${error.message}`);
