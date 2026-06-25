@@ -1284,21 +1284,45 @@ low  = toNum(data.lowSold ?? data.low ?? data.min ?? data.floor);
 high = toNum(data.highSold ?? data.high ?? data.max ?? data.ceil);
 
 // fallback: build from comps[]
-if (!(low > 0 || avg > 0 || high > 0) && Array.isArray(data.comps)) {
-  const compPrices = data.comps
-    .map(c => toNum(c?.price?.value ?? c?.price))
-    .filter(n => n > 0);
-
-  if (compPrices.length) {
-    low = Math.min(...compPrices);
-    high = Math.max(...compPrices);
-    avg = compPrices.reduce((a, b) => a + b, 0) / compPrices.length;
-  }
-}
-
 if (!(low > 0 || avg > 0 || high > 0)) {
   throw new Error('No usable price fields in response');
 }
-    </script>
+    }
+
+    const key = (currentlySelectedCard?.code || currentlySelectedCard?.name || searchTerm || '').trim();
+    if (key) {
+      ebayValueCache[key] = {
+        low, high, avg,
+        qty: Number(currentlySelectedCard?.qty || 1)
+      };
+      updateEbayPortfolioStats();
+    }
+
+    if (panel) {
+      panel.classList.remove('hidden');
+      panel.innerHTML = `
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-slate-800 rounded p-2"><div class="text-xs text-slate-400">Low</div><div class="font-semibold">$${low.toFixed(2)}</div></div>
+          <div class="bg-slate-800 rounded p-2"><div class="text-xs text-slate-400">Avg</div><div class="font-semibold">$${avg.toFixed(2)}</div></div>
+          <div class="bg-slate-800 rounded p-2"><div class="text-xs text-slate-400">High</div><div class="font-semibold">$${high.toFixed(2)}</div></div>
+        </div>`;
+    }
+
+    setStatus(true, 'Online');
+  } catch (err) {
+    console.error('eBay lookup failed:', err);
+    setStatus(false, 'Offline');
+    if (panel) {
+      panel.classList.remove('hidden');
+      panel.innerHTML = `<div class="text-sm text-red-300 bg-red-950/40 border border-red-800 rounded p-2">Live lookup failed: ${err.message}</div>`;
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+    }
+  }
+}
+</script>
 </body>
 </html>
