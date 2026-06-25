@@ -428,17 +428,7 @@
                     <p id="drawer-highest-price" class="text-sm font-extrabold text-amber-400 mt-0.5">$0.00</p>
                 </div>    
             </div>
-            <div id="ebay-tracker-section" class="border-t border-slate-800 mt-4 pt-3">
-    <div class="flex justify-between items-center mb-2">
-        <label class="text-[10px] uppercase font-bold text-amber-500 flex items-center gap-1">
-            <span>🔄</span> Live eBay Market Data
-        </label>
-        <span id="ebay-average-price" class="text-xs font-bold text-slate-300">--</span>
-    </div>
-    <div id="ebay-listings-container" class="bg-slate-950 border border-slate-900 rounded-xl p-2 max-h-40 overflow-y-auto text-xs text-slate-400 scrollbar-thin">
-        <p class="text-slate-600 italic text-center py-2">Select an item to scan live marketplace data...</p>
-    </div>
-</div>
+           
 
             <!-- Collector Specific Metadata Blocks -->
             <div class="grid grid-cols-2 gap-3.5 pt-1">
@@ -729,97 +719,6 @@ function parseSpreadsheetCSV(text) {
     applyFilters();
 }
 
-        // Parser mapping exactly to your 11 columns
-        function parseSpreadsheetCSV(text) {
-    const lines = [];
-    let row = [""];
-    let inQuotes = false;
-
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const next = text[i + 1];
-
-        if (char === '"') {
-            if (inQuotes && next === '"') {
-                row[row.length - 1] += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (char === ',' && !inQuotes) {
-            row.push('');
-        } else if ((char === '\n' || char === '\r') && !inQuotes) {
-            if (char === '\r' && next === '\n') i++;
-            lines.push(row);
-            row = [''];
-        } else {
-            row[row.length - 1] += char;
-        }
-    }
-    if (row.length > 1 || row[0] !== '') lines.push(row);
-
-    if (lines.length < 2) {
-        cardDatabase = [];
-        filteredDatabase = [];
-        renderGrid();
-        logDiagnostic("CSV parsed but no data rows found.");
-        return;
-    }
-
-    const headers = lines[0].map(h => (h || '').trim().toUpperCase());
-    logDiagnostic(`Detected headers: ${JSON.stringify(headers)}`);
-
-    const idxGame = headers.findIndex(h => h.includes('GAME') || h.includes('CATEGORY') || h.includes('UNIVERSE'));
-    const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME') || h.includes('ITEM'));
-    const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER') || h.includes('SCALE'));
-    const idxRarity = headers.findIndex(h => h.includes('RARITY') || h.includes('GRADE'));
-    const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
-    const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
-    const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
-    const idxSource = headers.findIndex(h => h.includes('SOURCE'));
-    const idxDate = headers.findIndex(h => h.includes('DATE'));
-    const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE') || h.includes('CONDITION'));
-    const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE') || h.includes('PHOTO'));
-    const idxEbay = headers.findIndex(h => h.includes('EBAY'));
-
-    if (idxName === -1) {
-        cardDatabase = [];
-        filteredDatabase = [];
-        renderGrid();
-        logDiagnostic("No NAME/CHARACTER/ITEM column found. Cannot parse rows.");
-        return;
-    }
-
-    const parsed = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i];
-        if (!line || line.length === 0) continue;
-
-        const name = (line[idxName] || '').trim();
-        if (!name) continue;
-
-        const qty = parseInt((line[idxQty] || '1').toString().trim(), 10);
-        parsed.push({
-            game: idxGame !== -1 ? (line[idxGame] || 'Other').trim() : 'Other',
-            name,
-            code: idxCode !== -1 ? (line[idxCode] || '').trim() : '',
-            rarity: idxRarity !== -1 ? (line[idxRarity] || '').trim() : '',
-            qty: Number.isFinite(qty) && qty > 0 ? qty : 1,
-            lowest_price: idxLowest !== -1 ? (line[idxLowest] || '').trim() : '',
-            highest_price: idxHighest !== -1 ? (line[idxHighest] || '').trim() : '',
-            source: idxSource !== -1 ? (line[idxSource] || '').trim() : '',
-            date: idxDate !== -1 ? (line[idxDate] || '').trim() : '',
-            remark: idxRemark !== -1 ? (line[idxRemark] || '').trim() : '',
-            image: idxImage !== -1 ? (line[idxImage] || '').trim() : '',
-            ebay_search_term: idxEbay !== -1 ? (line[idxEbay] || '').trim() : ''
-        });
-    }
-
-    cardDatabase = parsed;
-    renderGameFilters();
-    applyFilters();
-}
         // eBay Lookup
         function ebayPriceLookup_(query) {
   // Placeholder until eBay API token wiring is done
@@ -1232,21 +1131,16 @@ function openDrawer(card) {
             }
         }
 
-        // Toggle image help modal
-        function toggleImageHelp() {
-            const modal = document.getElementById('image-help-modal');
-            modal.classList.toggle('hidden');
-        }
-
-        // Toggle database settings modal
-      function toggleDbModal() {
-    const modal = document.getElementById('db-modal');
+     // Toggle image help modal
+function toggleImageHelp() {
+    const modal = document.getElementById('image-help-modal');
     if (!modal) return;
     modal.classList.toggle('hidden');
 }
 
-function toggleImageHelp() {
-    const modal = document.getElementById('image-help-modal');
+// Toggle database settings modal
+function toggleDbModal() {
+    const modal = document.getElementById('db-modal');
     if (!modal) return;
     modal.classList.toggle('hidden');
 }
