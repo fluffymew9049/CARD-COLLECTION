@@ -911,19 +911,14 @@ function openDrawer(card) {
     // Safely look for your eBay Search Term column data (handles space conversion mapping)
     const trackingTerm = card.ebay_search_term || card['ebay search term'] || card.code || card.name;
     loadLiveEbayData(trackingTerm);
-}
 
-    // NEW: Kick off the eBay marketplace background tracking using column L
-    loadLiveEbayData(card.ebay_search_term);
+    // Animate layout open
+    document.getElementById('backdrop-drawer').classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('backdrop-drawer').classList.add('opacity-100');
+        document.getElementById('spec-drawer').classList.add('active');
+    }, 10);
 }
-
-            // Animate layout open
-            document.getElementById('backdrop-drawer').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('backdrop-drawer').classList.add('opacity-100');
-                document.getElementById('spec-drawer').classList.add('active');
-            }, 10);
-        }
 
         // Close drawer panel
         function closeDrawer() {
@@ -1123,58 +1118,6 @@ function openDrawer(card) {
             }
         }
         async function loadLiveEbayData(ebaySearchTerm) {
-  const avgPriceEl = document.getElementById('ebay-average-price');
-  const containerEl = document.getElementById('ebay-listings-container');
-
-  if (!avgPriceEl || !containerEl) return; // Safeguard if elements aren't found
-
-  if (!ebaySearchTerm) {
-    avgPriceEl.innerText = "--";
-    containerEl.innerHTML = `<p class="text-slate-600 italic text-center py-2">No eBay tracking identifier provided for this card.</p>`;
-    return;
-  }
-
-  avgPriceEl.innerText = "Scanning...";
-  containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Fetching live listings from eBay...</p>`;
-
-  try {
-    const response = await fetch(`/.netlify/functions/get-ebay-price?q=${encodeURIComponent(ebaySearchTerm)}`);
-    const listings = await response.json();
-
-    if (!listings || listings.length === 0) {
-      avgPriceEl.innerText = "N/A";
-      containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2">No active listings found on eBay matching "${ebaySearchTerm}".</p>`;
-      return;
-    }
-
-    let totalPrice = 0;
-    let listingsHtml = '<div class="space-y-1.5">';
-
-    listings.forEach(item => {
-      const price = parseFloat(item.price.value);
-      totalPrice += price;
-
-      listingsHtml += `
-        <div class="flex justify-between items-center bg-slate-900/50 p-1.5 rounded hover:bg-slate-900 transition">
-          <a href="${item.itemWebUrl}" target="_blank" class="text-slate-300 hover:text-amber-400 truncate pr-2 max-w-[200px]" title="${item.title}">
-            🛍️ ${item.title}
-          </a>
-          <span class="font-bold text-amber-500 shrink-0">$${price.toFixed(2)}</span>
-        </div>`;
-    });
-
-    listingsHtml += '</div>';
-
-    const average = totalPrice / listings.length;
-    avgPriceEl.innerText = `Avg: $${average.toFixed(2)}`;
-    containerEl.innerHTML = listingsHtml;
-
-  } catch (error) {
-    console.error("eBay Fetch Error:", error);
-    avgPriceEl.innerText = "Error";
-    containerEl.innerHTML = `<p class="text-rose-500 italic text-center py-2">Failed to load real-time market metrics.</p>`;
-  }
-}async function loadLiveEbayData(ebaySearchTerm) {
   const avgPriceEl = document.getElementById('ebay-average-price');
   const containerEl = document.getElementById('ebay-listings-container');
 
