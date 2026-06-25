@@ -791,9 +791,9 @@ function updateEbayPortfolioStats() {
             // Render stats block
             document.getElementById('stat-total-cards').textContent = totalCardsCount;
             document.getElementById('stat-unique-cards').textContent = uniqueCardsCount;
-            document.getElementById('stat-lowest-val').textContent = `$${totalLowestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('stat-highest-val').textContent = `$${totalHighestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('stat-avg-val').textContent = `$${midAvgVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('stat-lowest-val').textContent = `THB${totalLowestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+document.getElementById('stat-highest-val').textContent = `THB${totalHighestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+document.getElementById('stat-avg-val').textContent = `THB${midAvgVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
             renderGrid();
         }
