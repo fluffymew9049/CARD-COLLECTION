@@ -856,24 +856,34 @@
             });
         }
 
-        // Open Slide up Drawer with Card/Item Info
+// Open Slide up Drawer with Card/Item Info
 function openDrawer(card) {
     currentlySelectedCard = card;
 
     // Helper safely assigning layout elements
-    const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-    
+    const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+
     setEl('drawer-game', card.game);
     setEl('drawer-rarity', card.rarity || 'Item');
     setEl('drawer-name', card.name);
     setEl('drawer-code', card.code || "No Set/Code Assigned");
     setEl('drawer-qty', card.qty);
-    
-    if(document.getElementById('drawer-lowest-price')) {
-        document.getElementById('drawer-lowest-price').textContent = card.lowest_price ? `$${cleanPrice(card.lowest_price).toFixed(2)}` : "$0.00";
+
+    const lowestEl = document.getElementById('drawer-lowest-price');
+    if (lowestEl) {
+        lowestEl.textContent = card.lowest_price
+            ? `$${cleanPrice(card.lowest_price).toFixed(2)}`
+            : "$0.00";
     }
-    if(document.getElementById('drawer-highest-price')) {
-        document.getElementById('drawer-highest-price').textContent = card.highest_price ? `$${cleanPrice(card.highest_price).toFixed(2)}` : "$0.00";
+
+    const highestEl = document.getElementById('drawer-highest-price');
+    if (highestEl) {
+        highestEl.textContent = card.highest_price
+            ? `$${cleanPrice(card.highest_price).toFixed(2)}`
+            : "$0.00";
     }
 
     setEl('drawer-source', card.source || "-");
@@ -882,11 +892,18 @@ function openDrawer(card) {
 
     // Reset AI lookup panels safely
     const resultsEl = document.getElementById('pricing-results');
-    if (resultsEl) { resultsEl.classList.add('hidden'); resultsEl.innerHTML = ''; }
-    
+    if (resultsEl) {
+        resultsEl.classList.add('hidden');
+        resultsEl.innerHTML = '';
+    }
+
     const sourcesEl = document.getElementById('pricing-sources');
-    if (sourcesEl) { sourcesEl.classList.add('hidden'); sourcesEl.innerHTML = ''; }
-    
+    if (sourcesEl) {
+        sourcesEl.classList.add('hidden');
+        const list = document.getElementById('sources-list');
+        if (list) list.innerHTML = '';
+    }
+
     const btnEl = document.getElementById('fetch-price-btn');
     if (btnEl) {
         btnEl.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
@@ -897,7 +914,7 @@ function openDrawer(card) {
     const container = document.getElementById('drawer-image-container');
     if (container) {
         if (card.image && card.image.trim().startsWith('http')) {
-            container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover rounded-xl">`;
+            container.innerHTML = `<img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover rounded-xl">`;
         } else {
             container.innerHTML = `
                 <div class="text-center p-2 text-slate-500">
@@ -908,18 +925,28 @@ function openDrawer(card) {
         }
     }
 
-    // Safely look for your eBay Search Term column data (handles space conversion mapping)
-    const trackingTerm = card.ebay_search_term || card['ebay search term'] || card.code || card.name;
-    loadLiveEbayData(trackingTerm);
-}
+    // eBay search term fallback
+    const trackingTerm =
+        card.ebay_search_term ||
+        card['ebay search term'] ||
+        card.code ||
+        card.name;
 
-    // NEW: Kick off the eBay marketplace background tracking using column L
-    loadLiveEbayData(card.ebay_search_term);
-}
+    if (typeof loadLiveEbayData === 'function') {
+        loadLiveEbayData(trackingTerm);
+    }
 
-            // Animate layout open
-            document.getElementById('backdrop-drawer').classList.remove('hidden');
-            setTimeout(() => {
+    // Animate layout open
+    const backdrop = document.getElementById('backdrop-drawer');
+    const drawer = document.getElementById('spec-drawer');
+    if (backdrop && drawer) {
+        backdrop.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.add('opacity-100');
+            drawer.classList.add('active');
+        }, 10);
+    }
+}t(() => {
                 document.getElementById('backdrop-drawer').classList.add('opacity-100');
                 document.getElementById('spec-drawer').classList.add('active');
             }, 10);
@@ -1036,10 +1063,17 @@ function openDrawer(card) {
         }
 
         // Toggle database settings modal
-        function toggleDbModal() {
-            const modal = document.getElementById('db-modal');
-            modal.classList.toggle('hidden');
-        }
+      function toggleDbModal() {
+    const modal = document.getElementById('db-modal');
+    if (!modal) return;
+    modal.classList.toggle('hidden');
+}
+
+function toggleImageHelp() {
+    const modal = document.getElementById('image-help-modal');
+    if (!modal) return;
+    modal.classList.toggle('hidden');
+}
 
         // Save database settings to localStorage
         function saveDbSettings() {
