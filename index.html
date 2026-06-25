@@ -476,6 +476,7 @@
         // Setup initial default connection configurations to user's parameters out-of-the-box
         const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?gid=0#gid=0";
         const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_lmmv_FWg44kA27IPxWgO61Xeo5MUThm1fnoJxvYq0SxDiAYIbayoE-jgueSUqa5Z/exec";
+        const SHEET_FETCH_TIMEOUT_MS = 12000;
 
         // Global State variables
         let cardDatabase = [];
@@ -587,7 +588,7 @@
             return [...new Set(urls)];
         }
 
-        async function fetchTextWithTimeout(url, timeoutMs = 12000) {
+        async function fetchTextWithTimeout(url, timeoutMs = SHEET_FETCH_TIMEOUT_MS) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -598,7 +599,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP network error: status ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText || 'Request failed'}`);
                 }
 
                 return await response.text();
@@ -638,7 +639,7 @@
                         if (csvData && csvData.trim()) {
                             break;
                         }
-                        throw new Error('Spreadsheet response was empty.');
+                        throw new Error(`Spreadsheet response was empty from ${url}`);
                     } catch (error) {
                         lastError = error;
                         logDiagnostic(`Sheet stream failed: ${error.message}`);
