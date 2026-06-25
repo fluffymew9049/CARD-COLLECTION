@@ -1294,8 +1294,16 @@ function toggleImageHelp() {
   containerEl.innerHTML = `<p class="text-slate-500 italic text-center py-2"><i class="fa-solid fa-spinner animate-spin mr-1"></i> Fetching live listings from eBay...</p>`;
 
   try {
-    const response = await fetch(`https://fluffymew9049.github.io/.netlify/functions/get-ebay-price?q=...${encodeURIComponent(ebaySearchTerm)}`);
-    const listings = await response.json();
+    const scriptUrl = (localStorage.getItem('tcg_script_url') || '').trim();
+if (!scriptUrl) throw new Error('Missing tcg_script_url');
+
+const response = await fetch(
+  `${scriptUrl}?action=ebay_price_lookup&query=${encodeURIComponent(ebaySearchTerm)}`,
+  { method: 'GET', cache: 'no-store' }
+);
+if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+const listings = await response.json();
 
     if (!listings || listings.length === 0) {
       avgPriceEl.innerText = "N/A";
