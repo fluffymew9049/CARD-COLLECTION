@@ -795,6 +795,21 @@ function parseSpreadsheetCSV(text) {
     renderGameFilters();
     applyFilters();
 }
+        // eBay Lookup
+        function ebayPriceLookup_(query) {
+  // Placeholder until eBay API token wiring is done
+  // Return same shape frontend expects
+  const mock = {
+    success: true,
+    avgSold: 12.34,
+    lowSold: 9.99,
+    highSold: 18.5,
+    comps: []
+  };
+  return ContentService
+    .createTextOutput(JSON.stringify(mock))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
         // Clean numeric calculations for totals
         function cleanPrice(priceVal) {
