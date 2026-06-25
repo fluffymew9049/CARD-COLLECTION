@@ -1081,29 +1081,7 @@ function toggleImageHelp() {
     modal.classList.toggle('hidden');
 }
 
-<p class="text-[11px] font-semibold text-amber-400 mt-2 block">
-  Connection settings are private.
-</p>
-        // Save database settings to localStorage
-        function saveDbSettings() {
-            const sheetUrl = document.getElementById('sheet-url-input').value;
-            const scriptUrl = document.getElementById('script-url-input').value;
-
-            if (!sheetUrl || !scriptUrl) {
-                triggerToast("Error", "Both Sheet URL and Script URL are required.", "error");
-                return;
-            }
-
-            localStorage.setItem('tcg_sheet_url', sheetUrl);
-            localStorage.setItem('tcg_script_url', scriptUrl);
-            
-            logDiagnostic("Database settings saved successfully.");
-            triggerToast("Success", "Settings saved! Syncing now...", "success");
-            
-            setTimeout(() => {
-                syncDatabase();
-            }, 1000);
-        }
+<span id="ebay-connection-status" class="text-[10px] text-yellow-400">Idle</span>
 
         // Live Market Price Fetching Engine
         async function fetchLiveMarketPrices() {
