@@ -1058,14 +1058,26 @@ function openDrawer(card) {
         }
     }
 
-    const trackingTerm =
+       const trackingTerm = (
+        card.ebaySearchTerm ||
         card.ebay_search_term ||
         card['ebay search term'] ||
         card.code ||
-        card.name;
+        card.name ||
+        ''
+    ).trim();
 
-    if (typeof loadLiveEbayData === 'function') {
+    const statusEl = document.getElementById('ebay-connection-status');
+    if (statusEl) statusEl.textContent = 'Connecting...';
+
+    if (trackingTerm && typeof loadLiveEbayData === 'function') {
         loadLiveEbayData(trackingTerm);
+    } else {
+        if (statusEl) statusEl.textContent = 'Offline';
+        if (resultsEl) {
+            resultsEl.classList.remove('hidden');
+            resultsEl.innerHTML = `<div class="text-yellow-300 text-sm">No search term available for this item.</div>`;
+        }
     }
 
     document.getElementById('backdrop-drawer').classList.remove('hidden');
