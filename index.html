@@ -683,6 +683,21 @@
             }[char]));
         }
 
+        function getSafeHttpUrl(value) {
+            if (!value) return '';
+
+            try {
+                const parsedUrl = new URL(String(value).trim());
+                if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+                    return parsedUrl.toString();
+                }
+            } catch (err) {
+                return '';
+            }
+
+            return '';
+        }
+
         // Build dynamic game filter elements
         function renderGameFilters() {
             const container = document.getElementById('game-filter-container');
@@ -796,6 +811,11 @@
             filteredDatabase.forEach(card => {
                 const cardEl = document.createElement('div');
                 cardEl.className = "bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden shadow-lg hover:border-amber-500/40 transition duration-300 flex flex-col justify-between p-0";
+                const safeGame = escapeHtml(card.game || '');
+                const safeName = escapeHtml(card.name || '');
+                const safeCode = escapeHtml(card.code || 'Various Set');
+                const safeQty = escapeHtml(card.qty || '0');
+                const safeImageUrl = getSafeHttpUrl(card.image);
                 
                 // Add click event except for UI buttons on the card
                 cardEl.onclick = (e) => {
@@ -820,17 +840,17 @@
                 let imgBlockHTML = `
                     <div class="w-full aspect-[3/4] bg-gradient-to-br from-slate-950 to-slate-900 flex flex-col justify-center items-center text-center p-3 relative border-b border-slate-800">
                         <div class="absolute inset-0 bg-amber-500/5 blur-xl rounded-full"></div>
-                        <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider mb-2 font-mono">${card.game}</span>
-                        <p class="text-[11px] font-bold text-slate-200 line-clamp-2 px-1 mb-1">${card.name}</p>
-                        <p class="text-[9px] font-mono text-slate-500">${card.code}</p>
+                        <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider mb-2 font-mono">${safeGame}</span>
+                        <p class="text-[11px] font-bold text-slate-200 line-clamp-2 px-1 mb-1">${safeName}</p>
+                        <p class="text-[9px] font-mono text-slate-500">${safeCode}</p>
                     </div>
                 `;
 
-                if (card.image && card.image.trim().startsWith('http')) {
+                if (safeImageUrl) {
                     imgBlockHTML = `
                         <div class="w-full aspect-[3/4] overflow-hidden relative bg-slate-950 border-b border-slate-800 flex items-center justify-center">
-                            <img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.outerHTML='<div class=\\'p-4 text-[11px] text-slate-500\\'>Image Failed</div>'">
-                            <span class="absolute top-2 left-2 text-[8px] bg-slate-950/80 backdrop-blur-md text-amber-400 font-bold tracking-wider px-1.5 py-0.5 rounded-full border border-slate-800">${card.game}</span>
+                            <img src="${safeImageUrl}" alt="${safeName}" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.outerHTML='<div class=\\'p-4 text-[11px] text-slate-500\\'>Image Failed</div>'">
+                            <span class="absolute top-2 left-2 text-[8px] bg-slate-950/80 backdrop-blur-md text-amber-400 font-bold tracking-wider px-1.5 py-0.5 rounded-full border border-slate-800">${safeGame}</span>
                         </div>
                     `;
                 }
@@ -839,14 +859,14 @@
                     ${imgBlockHTML}
                     <div class="p-3 space-y-2">
                         <div>
-                            <h4 class="font-bold text-slate-200 text-xs truncate leading-tight">${card.name}</h4>
-                            <p class="text-[9px] font-mono text-slate-500 truncate mt-0.5">${card.code || 'Various Set'}</p>
+                            <h4 class="font-bold text-slate-200 text-xs truncate leading-tight">${safeName}</h4>
+                            <p class="text-[9px] font-mono text-slate-500 truncate mt-0.5">${safeCode}</p>
                         </div>
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="font-semibold text-emerald-400">${formattedPriceRange}</span>
                             <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg qty-btn-handler">
                                 <span class="text-[10px] text-slate-400">x</span>
-                                <strong class="text-slate-100 font-bold">${card.qty}</strong>
+                                <strong class="text-slate-100 font-bold">${safeQty}</strong>
                             </div>
                         </div>
                     </div>
@@ -882,8 +902,9 @@
 
             // Handle drawer card preview
             const container = document.getElementById('drawer-image-container');
-            if (card.image && card.image.trim().startsWith('http')) {
-                container.innerHTML = `<img src="${card.image}" class="w-full h-full object-cover">`;
+            const safeImageUrl = getSafeHttpUrl(card.image);
+            if (safeImageUrl) {
+                container.innerHTML = `<img src="${safeImageUrl}" class="w-full h-full object-cover">`;
             } else {
                 container.innerHTML = `
                     <div class="text-center p-2 text-slate-500">
