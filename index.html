@@ -325,7 +325,7 @@
                         <i class="fa-solid fa-cloud-arrow-down"></i> 1. Read Connection
                     </label>
                     <span class="text-[10px] text-slate-400 block mb-1">Google Sheets Edit Link</span>
-                    <input id="sheet-url-input" type="text" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    <input id="sheet-url-input" type="text" placeholder="https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?usp=sharing" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none">
                 </div>
 
                 <!-- WRITE SETTINGS -->
@@ -474,7 +474,7 @@
     <!-- Application Logic Script -->
     <script>
         // Setup initial default connection configurations to user's parameters out-of-the-box
-        const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?gid=0#gid=0";
+        const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?usp=sharing";
         const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_lmmv_FWg44kA27IPxWgO61Xeo5MUThm1fnoJxvYq0SxDiAYIbayoE-jgueSUqa5Z/exec";
 
         // Global State variables
@@ -570,7 +570,7 @@
                         let gid = "0";
                         const gidMatch = rawSheetUrl.match(/gid=([0-9]+)/);
                         if (gidMatch) gid = gidMatch[1];
-                        directCsvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+                        directCsvUrl = `https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?usp=sharing`;
                     }
                 }
 
