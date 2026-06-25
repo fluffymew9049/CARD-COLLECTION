@@ -97,17 +97,17 @@
             <div class="grid grid-cols-2 gap-3.5 border-b border-slate-800/60 pb-3">
                 <div>
                     <span class="text-[10px] text-slate-400 font-semibold block">Lowest Portfolio Value</span>
-                    <p id="stat-lowest-val" class="text-lg font-black text-emerald-400 mt-1">THB0.00</p>
+                    <p id="stat-lowest-val" class="text-lg font-black text-emerald-400 mt-1">$0.00</p>
                 </div>
                 <div class="border-l border-slate-800/60 pl-3.5">
                     <span class="text-[10px] text-slate-400 font-semibold block">Highest Portfolio Value</span>
-                    <p id="stat-highest-val" class="text-lg font-black text-amber-400 mt-1">THB0.00</p>
+                    <p id="stat-highest-val" class="text-lg font-black text-amber-400 mt-1">$0.00</p>
                 </div>
             </div>
 
             <div class="pt-2.5 flex justify-between items-center text-xs">
                 <span class="text-slate-400">Calculated Mid-Point Estimate:</span>
-                <span id="stat-avg-val" class="font-extrabold text-slate-100">THB0.00</span>
+                <span id="stat-avg-val" class="font-extrabold text-slate-100">$0.00</span>
             </div>
             <section class="bg-slate-900/50 border border-emerald-500/20 p-4 rounded-2xl shadow-xl mb-6">
   <div class="flex justify-between items-center mb-3">
@@ -132,16 +132,6 @@
     <span class="text-slate-400">Live Mid-Point Estimate:</span>
     <span id="stat-ebay-avg-val" class="font-extrabold text-slate-100">$0.00</span>
   </div>
-
-  <div id="ebay-progress-wrap" class="mt-3 hidden">
-    <div class="flex justify-between items-center text-[10px] mb-1">
-      <span id="ebay-progress-label" class="text-slate-400">Loading eBay prices...</span>
-      <span id="ebay-progress-count" class="text-emerald-300 font-mono">0 / 0</span>
-    </div>
-    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-      <div id="ebay-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300" style="width:0%"></div>
-    </div>
-  </div>
 </section>
         </section>
 
@@ -150,7 +140,7 @@
             <!-- Search field -->
             <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-                <input id="search-input" type="text" oninput="applyFilters()" placeholder="Search names, codes, categories..." class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl pl-10" />
+                <input id="search-input" type="text" oninput="applyFilters()" placeholder="Search names, codes, categories..." class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl pl-10 pr-4 py-2.5 text-slate-100 text-sm focus:ring-1 focus:ring-amber-500 focus:outline-none transition">
             </div>
 
             <!-- Game/Universe Filters row (Dynamically loaded from spreadsheet columns) -->
@@ -189,90 +179,274 @@
 
     </div>
 
+    <!-- Manual Add Button Floating Action Bar -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 max-w-md w-full px-4 flex gap-3 justify-center">
+        <!-- Manual Add Button -->
+        <button onclick="openManualAdd()" class="flex-1 flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-2xl text-xs transition shadow-lg">
+            <i class="fa-solid fa-pen-to-square text-sm"></i>
+            Add Manually
+        </button>
+    </div>
+
+    <!-- Custom Dialog / Toast Container -->
+    <div id="custom-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] max-w-sm w-full px-4 transition-all duration-300 transform -translate-y-24 opacity-0 pointer-events-none">
+        <div id="toast-bg" class="bg-slate-900 border p-4 rounded-xl shadow-2xl flex gap-3 items-center">
+            <i id="toast-icon" class="fa-solid text-lg"></i>
+            <div class="flex-1">
+                <p id="toast-title" class="text-xs font-bold text-slate-100"></p>
+                <p id="toast-msg" class="text-[11px] text-slate-400 mt-0.5"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Add Confirmation Modal -->
+    <div id="manual-add-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-end justify-center p-4 hidden">
+        <div class="bg-slate-950 border border-slate-800 rounded-t-3xl w-full max-w-sm overflow-hidden shadow-2xl drawer-slide-up p-5">
+            <div class="flex justify-between items-center border-b border-slate-900 pb-3 mb-4">
+                <h4 id="manual-modal-title" class="font-bold text-slate-100 flex items-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square text-amber-400"></i> Add Item Manually
+                </h4>
+                <button onclick="cancelManualAdd()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="manual-add-form" onsubmit="executeSaveManualCard(event)" class="space-y-3 text-xs max-h-[70vh] overflow-y-auto">
+                <!-- Game Selection / Custom Category -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Category / Universe</label>
+                        <select id="manual-input-game" onchange="handleCategorySelectionChange()" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                            <option value="Pokémon">POKÉMON</option>
+                            <option value="Naruto">NARUTO</option>
+                            <option value="Figures">FIGURES</option>
+                            <option value="Gundam">GUNDAM</option>
+                            <option value="CUSTOM">ADD CUSTOM CATEGORY...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Set, Code or Scale</label>
+                        <input id="manual-input-code" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Custom Category Input (Revealed only when CUSTOM selected) -->
+                <div id="manual-input-custom-game-container" class="hidden">
+                    <label class="text-[10px] uppercase font-bold text-orange-400 block mb-1">Custom Category Name</label>
+                    <input id="manual-input-custom-game" type="text" class="w-full bg-slate-900 border border-orange-500/50 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-orange-500 focus:outline-none">
+                </div>
+
+                <!-- Card Name and Rarity -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Item / Character Name</label>
+                        <input id="manual-input-name" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Rarity / Grade</label>
+                        <input id="manual-input-rarity" type="text" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-bold text-amber-400 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Valuation Inputs -->
+                <div class="grid grid-cols-3 gap-2 border-t border-slate-900 pt-3">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Quantity</label>
+                        <input id="manual-input-qty" type="number" required min="1" value="1" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 text-center font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Lowest Price</label>
+                        <input id="manual-input-lowest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., $10">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Highest Price</label>
+                        <input id="manual-input-highest" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-semibold placeholder-slate-600 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., $50">
+                    </div>
+                </div>
+
+                <!-- Custom Remarks, Source, Image Link -->
+                <div class="space-y-2 border-t border-slate-900 pt-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Acquisition Source</label>
+                            <input id="manual-input-source" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="e.g., eBay">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Date Logged</label>
+                            <input id="manual-input-date" type="date" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Image Link (Optional URL)</label>
+                        <input id="manual-input-image" type="text" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono truncate focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Remarks & Condition Notes</label>
+                        <textarea id="manual-input-remark" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="Condition, notes, etc."></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Triggers -->
+                <div class="flex gap-2.5 pt-3 border-t border-slate-900">
+                    <button type="button" onclick="cancelManualAdd()" class="w-1/3 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl">CANCEL</button>
+                    <button type="submit" id="manual-save-btn" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-xl">
+                        SAVE TO SHEET
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Help Modal -->
+    <div id="image-help-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-900 flex justify-between items-center">
+                <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-regular fa-image text-emerald-400"></i>
+                    Adding Pictures
+                </h3>
+                <button onclick="toggleImageHelp()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 text-xs leading-relaxed max-h-[70vh] overflow-y-auto">
+                <div>
+                    <p class="font-bold text-slate-200 mb-1">1. Create your image column</p>
+                    <p class="text-slate-400">Ensure your spreadsheet header has a column named exactly <strong class="text-emerald-400">IMAGE</strong> in all caps.</p>
+                </div>
+                <div>
+                    <p class="font-bold text-slate-200 mb-1">2. Paste Direct Links</p>
+                    <p class="text-slate-400">Paste direct image links that end with extensions like <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.jpg</code>, <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.png</code>, or <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">.webp</code>.</p>
+                </div>
+                <div>
+                    <p class="font-bold text-slate-200 mb-1">3. Hosting Photos (Free)</p>
+                    <p class="text-slate-400">If you photograph your own items or boxes, upload them to free direct hosting platforms such as <a href="https://postimages.org" target="_blank" class="text-emerald-400 hover:underline">PostImage</a> or <a href="https://imgur.com" target="_blank" class="text-emerald-400 hover:underline">Imgur</a>.</p>
+                </div>
+                <div class="bg-emerald-950/40 border border-emerald-900/50 p-3 rounded-xl text-emerald-300">
+                    <p class="font-semibold flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-circle-check"></i> Live Updates
+                    </p>
+                    Once uploaded, simply click Sync Database inside the app, and your visual binder will automatically update with item artwork.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Backdrop overlay for slide-out drawer -->
+    <div id="backdrop-drawer" onclick="closeDrawer()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
+    
+    <!-- Detailed Collector drawer with AI Price engine -->
+    <div id="spec-drawer" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-950 border-t border-slate-800 rounded-t-3xl z-50 drawer-slide-up shadow-2xl overflow-hidden">
+        <!-- Drawer indicator pill bar -->
+        <div class="w-12 h-1.5 bg-slate-800 rounded-full mx-auto my-3 cursor-pointer" onclick="closeDrawer()"></div>
+        
+        <div class="p-5 pt-1 max-h-[80vh] overflow-y-auto text-xs space-y-4">
+            
+            <!-- Core Card Info Row -->
+            <div class="flex gap-4 items-start">
+                <div id="drawer-image-container" class="w-24 aspect-[3/4] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-500">
+                    <!-- Dynamic image injection -->
+                </div>
+                <div class="flex-1 space-y-1">
+                    <div class="flex justify-between items-start">
+                        <span id="drawer-game" class="px-2 py-0.5 bg-amber-500/10 text-amber-400 font-bold uppercase rounded-full text-[9px] tracking-wider font-mono">GAME</span>
+                        <span id="drawer-rarity" class="font-extrabold text-amber-500 uppercase tracking-wider text-sm">SAR</span>
+                    </div>
+                    <h3 id="drawer-name" class="text-base font-black text-slate-100 leading-tight">Card Character Name</h3>
+                    <p id="drawer-code" class="font-mono text-slate-400 text-[10px]">SET-CODE #000</p>
+                    
+                    <div class="flex gap-1.5 mt-2">
+                        <span class="text-slate-400">Total Owned:</span>
+                        <strong id="drawer-qty" class="text-slate-100">1</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Double Estimation Box inside Drawer -->
+            <div class="grid grid-cols-2 gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800/80">
+                <div class="text-center">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wide">Lowest Value</span>
+                    <p id="drawer-lowest-price" class="text-sm font-extrabold text-emerald-400 mt-0.5">$0.00</p>
+                </div>
+                <div class="text-center border-l border-slate-800/60">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wide">Highest Value</span>
+                    <p id="drawer-highest-price" class="text-sm font-extrabold text-amber-400 mt-0.5">$0.00</p>
+                </div>    
+            </div>
+           
+
+            <!-- Collector Specific Metadata Blocks -->
+            <div class="grid grid-cols-2 gap-3.5 pt-1">
+                <div class="bg-slate-900/30 p-2.5 rounded-xl border border-slate-900/60">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold block mb-0.5">Source / Channel</span>
+                    <p id="drawer-source" class="font-semibold text-slate-300">-</p>
+                </div>
+                <div class="bg-slate-900/30 p-2.5 rounded-xl border border-slate-900/60">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold block mb-0.5">Log Date</span>
+                    <p id="drawer-date" class="font-mono text-slate-300">-</p>
+                </div>
+            </div>
+
+            <!-- Collector Remarks block -->
+            <div class="space-y-1 bg-slate-900/30 p-3 rounded-xl border border-slate-900/60">
+                <span class="text-[10px] text-slate-500 uppercase font-bold block">Remarks & Condition Details</span>
+                <p id="drawer-remark" class="text-slate-300 leading-normal italic">-</p>
+            </div>
+
+            <!-- AI Real-Time Web-Search Price Tracker Engine -->
+            <div class="border-t border-slate-900 pt-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-bold text-slate-100 flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                        Live Market Price Tracker
+                    </h4>
+                    <span class="text-[9px] bg-slate-900 border border-slate-800 text-slate-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">Live Grounding</span>
+                </div>
+
+                <!-- Fetch Price Button -->
+                <button onclick="fetchLiveMarketPrices()" id="fetch-price-btn" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-circle-nodes animate-pulse"></i>
+                    Fetch Live Market Prices
+                </button>
+
+                <!-- Pricing results output frame -->
+                <div id="pricing-results" class="hidden bg-slate-900/50 rounded-xl p-3 border border-slate-800/80 space-y-2 leading-relaxed text-[11px]">
+                    <!-- Pricing text stream goes here -->
+                </div>
+                <div id="pricing-sources" class="hidden text-[10px] text-slate-400 bg-slate-900/20 p-2.5 rounded-lg border border-slate-900 space-y-1">
+                    <p class="font-bold text-slate-300 uppercase text-[9px] tracking-wider mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-link text-emerald-400"></i> Evaluated Sources:
+                    </p>
+                    <ul id="sources-list" class="list-disc list-inside space-y-0.5 truncate">
+                        <!-- Direct link citations -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="closeDrawer()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl uppercase">Close Details</button>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Application Logic Script -->
     <script>
+        // Setup initial default connection configurations to user's parameters out-of-the-box
         const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?usp=sharing";
         const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_lmmv_FWg44kA27IPxWgO61Xeo5MUThm1fnoJxvYq0SxDiAYIbayoE-jgueSUqa5Z/exec";
 
+        // Global State variables
         let cardDatabase = [];
         let filteredDatabase = [];
         let activeGameFilter = 'ALL';
         let currentlySelectedCard = null;
-        let ebayValueCache = {};
-
-        let ebayLoadTotal = 0;
-        let ebayLoadDone = 0;
-        let ebayLoadActive = false;
-
-        function formatTHB(value) {
-            return `THB${Number(value || 0).toLocaleString('th-TH', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })}`;
-        }
-
-        function formatUSD(value) {
-            return `$${Number(value || 0).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })}`;
-        }
-
-        function getEbayTrackableCount() {
-            return cardDatabase.filter(card =>
-                (card.ebaySearchTerm || card.ebay_search_term || card['ebay search term'] || card.code || card.name || '').trim() !== ''
-            ).length;
-        }
-
-        function startEbayProgress(total) {
-            ebayLoadTotal = Number(total || 0);
-            ebayLoadDone = 0;
-            ebayLoadActive = ebayLoadTotal > 0;
-
-            const wrap = document.getElementById('ebay-progress-wrap');
-            const label = document.getElementById('ebay-progress-label');
-            const count = document.getElementById('ebay-progress-count');
-            const bar = document.getElementById('ebay-progress-bar');
-
-            if (wrap) wrap.classList.remove('hidden');
-            if (label) label.textContent = ebayLoadTotal > 0 ? 'Loading eBay prices...' : 'No items to load';
-            if (count) count.textContent = `0 / ${ebayLoadTotal}`;
-            if (bar) bar.style.width = '0%';
-        }
-
-        function tickEbayProgress() {
-            if (!ebayLoadActive) return;
-
-            ebayLoadDone = Math.min(ebayLoadDone + 1, ebayLoadTotal);
-            const pct = ebayLoadTotal > 0 ? (ebayLoadDone / ebayLoadTotal) * 100 : 0;
-
-            const count = document.getElementById('ebay-progress-count');
-            const bar = document.getElementById('ebay-progress-bar');
-            const label = document.getElementById('ebay-progress-label');
-
-            if (count) count.textContent = `${ebayLoadDone} / ${ebayLoadTotal}`;
-            if (bar) bar.style.width = `${pct}%`;
-
-            if (ebayLoadDone >= ebayLoadTotal) {
-                ebayLoadActive = false;
-                if (label) label.textContent = 'eBay price loading complete';
-            }
-        }
-
-        function markEbayLoadedForItem(card, priceObj) {
-            if (!card || !priceObj) return;
-            const key = `${card.code || ''}|${card.name || ''}`;
-            ebayValueCache[key] = {
-                low: Number(priceObj.low || 0),
-                high: Number(priceObj.high || 0),
-                avg: Number(priceObj.avg || 0),
-                qty: Number(card.qty || 1)
-            };
-            updateEbayPortfolioStats();
-            tickEbayProgress();
-        }
-
+        let ebayValueCache = {}; // key: card.code|name -> { low, high, avg, qty }
+    
+        // On Screen Load Initialize Connections
         window.addEventListener('DOMContentLoaded', () => {
+            // Apply default configurations if not already defined in localStorage
             if (!localStorage.getItem('tcg_sheet_url')) {
                 localStorage.setItem('tcg_sheet_url', DEFAULT_SHEET_URL);
             }
@@ -280,196 +454,797 @@
                 localStorage.setItem('tcg_script_url', DEFAULT_SCRIPT_URL);
             }
 
+            // Populate connection input fields
+            const sheetInput = document.getElementById('sheet-url-input');
+if (sheetInput) sheetInput.value = localStorage.getItem('tcg_sheet_url') || "";
+
+const scriptInput = document.getElementById('script-url-input');
+if (scriptInput) scriptInput.value = localStorage.getItem('tcg_script_url') || "";
+
+            logDiagnostic("App initialized. Pre-loaded your configured Sheet & Script endpoints.");
+            
+            // Execute automated startup sync
             syncDatabase();
         });
 
+        // Debug logger helper
+        function logDiagnostic(msg) {
+            const logBox = document.getElementById('diagnostic-log');
+            if (logBox) {
+                const now = new Date().toLocaleTimeString();
+                logBox.innerHTML += `<div>[${now}] ${msg}</div>`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+            console.log(msg);
+        }
+
+        // Custom non-blocking visual Toast Alerts
+        function triggerToast(title, msg, type = 'success') {
+            const toast = document.getElementById('custom-toast');
+            const bg = document.getElementById('toast-bg');
+            const icon = document.getElementById('toast-icon');
+            const tTitle = document.getElementById('toast-title');
+            const tMsg = document.getElementById('toast-msg');
+
+            tTitle.textContent = title;
+            tMsg.textContent = msg;
+
+            if (type === 'success') {
+                bg.className = "bg-slate-900 border-emerald-500/40 border-2 p-4 rounded-2xl shadow-2xl flex gap-3 items-center";
+                icon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else if (type === 'error') {
+                bg.className = "bg-slate-900 border-rose-500/40 border-2 p-4 rounded-2xl shadow-2xl flex gap-3 items-center";
+                icon.className = "fa-solid fa-circle-exclamation text-rose-400";
+            } else {
+                bg.className = "bg-slate-900 border-amber-500/40 border-2 p-4 rounded-2xl shadow-2xl flex gap-3 items-center";
+                icon.className = "fa-solid fa-bell text-amber-400";
+            }
+
+            toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-24');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-24');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 4000);
+        }
+
+        // Sync Database: Bypasses browser CORS using visualization endpoint
+       async function syncDatabase() {
+    const loader = document.getElementById('loader-view');
+    const warning = document.getElementById('sync-warning');
+
+    const showLoader = () => { if (loader) loader.classList.remove('hidden'); };
+    const hideLoader = () => { if (loader) loader.classList.add('hidden'); };
+    const showWarning = () => { if (warning) warning.classList.remove('hidden'); };
+    const hideWarning = () => { if (warning) warning.classList.add('hidden'); };
+
+    const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
+
+    if (!rawSheetUrl) {
+        logDiagnostic("No sheet URL found in localStorage key: tcg_sheet_url");
+        showWarning();
+        hideLoader();
+        return;
+    }
+
+    showLoader();
+    hideWarning();
+    logDiagnostic(`Sync start: ${rawSheetUrl}`);
+
+    try {
+        const idMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
+        if (!idMatch) throw new Error("Invalid Google Sheet URL: cannot extract sheet ID.");
+
+        const sheetId = idMatch[1];
+        const gid = rawSheetUrl.match(/gid=([0-9]+)/)?.[1] || "0";
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+
+        logDiagnostic(`Fetching CSV: ${csvUrl}`);
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(csvUrl, { signal: controller.signal, cache: "no-store" });
+        clearTimeout(timeout);
+
+        logDiagnostic(`HTTP status: ${response.status}`);
+        if (!response.ok) throw new Error(`Fetch failed: HTTP ${response.status}`);
+
+        const csvData = await response.text();
+        logDiagnostic(`CSV length: ${csvData.length}`);
+
+        if (!csvData || !csvData.trim()) throw new Error("Empty CSV returned.");
+        if (csvData.trim().startsWith("<")) throw new Error("Got HTML instead of CSV. Check sheet sharing.");
+
+        parseSpreadsheetCSV(csvData);
+
+        if (!cardDatabase || cardDatabase.length === 0) {
+            showWarning();
+            triggerToast("No Data Parsed", "Sheet loaded but no valid rows found.", "warning");
+            logDiagnostic("Parse complete: 0 rows.");
+        } else {
+            hideWarning();
+            triggerToast("Sync Complete", `Loaded ${cardDatabase.length} rows.`, "success");
+            logDiagnostic(`Parse complete: ${cardDatabase.length} rows.`);
+        }
+    } catch (err) {
+        showWarning();
+        logDiagnostic(`Sync error: ${err.message}`);
+        triggerToast("Sync Failed", err.message || "Unknown error", "error");
+    } finally {
+        hideLoader();
+    }
+}
+
+function parseSpreadsheetCSV(text) {
+    const lines = [];
+    let row = [""];
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+            if (inQuotes && next === '"') {
+                row[row.length - 1] += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            row.push('');
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+            if (char === '\r' && next === '\n') i++;
+            lines.push(row);
+            row = [''];
+        } else {
+            row[row.length - 1] += char;
+        }
+    }
+    if (row.length > 1 || row[0] !== '') lines.push(row);
+
+    if (lines.length < 2) {
+        cardDatabase = [];
+        filteredDatabase = [];
+        renderGrid();
+        logDiagnostic("CSV parsed but no data rows found.");
+        return;
+    }
+
+    const headers = lines[0].map(h => (h || '').trim().toUpperCase());
+    logDiagnostic(`Detected headers: ${JSON.stringify(headers)}`);
+
+    const idxGame = headers.findIndex(h => h.includes('GAME') || h.includes('CATEGORY') || h.includes('UNIVERSE'));
+    const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME') || h.includes('ITEM'));
+    const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER') || h.includes('SCALE'));
+    const idxRarity = headers.findIndex(h => h.includes('RARITY') || h.includes('GRADE'));
+    const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
+    const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
+    const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
+    const idxSource = headers.findIndex(h => h.includes('SOURCE'));
+    const idxDate = headers.findIndex(h => h.includes('DATE'));
+    const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE') || h.includes('CONDITION'));
+    const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE') || h.includes('PHOTO'));
+    const idxEbay = headers.findIndex(h => h.includes('EBAY'));
+
+    if (idxName === -1) {
+        cardDatabase = [];
+        filteredDatabase = [];
+        renderGrid();
+        logDiagnostic("No NAME/CHARACTER/ITEM column found. Cannot parse rows.");
+        return;
+    }
+
+    const parsed = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line || line.length === 0) continue;
+
+        const name = (line[idxName] || '').trim();
+        if (!name) continue;
+
+        const qty = parseInt((line[idxQty] || '1').toString().trim(), 10);
+        parsed.push({
+            game: idxGame !== -1 ? (line[idxGame] || 'Other').trim() : 'Other',
+            name,
+            code: idxCode !== -1 ? (line[idxCode] || '').trim() : '',
+            rarity: idxRarity !== -1 ? (line[idxRarity] || '').trim() : '',
+            qty: Number.isFinite(qty) && qty > 0 ? qty : 1,
+            lowest_price: idxLowest !== -1 ? (line[idxLowest] || '').trim() : '',
+            highest_price: idxHighest !== -1 ? (line[idxHighest] || '').trim() : '',
+            source: idxSource !== -1 ? (line[idxSource] || '').trim() : '',
+            date: idxDate !== -1 ? (line[idxDate] || '').trim() : '',
+            remark: idxRemark !== -1 ? (line[idxRemark] || '').trim() : '',
+            image: idxImage !== -1 ? (line[idxImage] || '').trim() : '',
+            ebay_search_term: idxEbay !== -1 ? (line[idxEbay] || '').trim() : ''
+        });
+    }
+
+    cardDatabase = parsed;
+    renderGameFilters();
+    applyFilters();
+}
+
+        // eBay Lookup
+        function ebayPriceLookup_(query) {
+  // Placeholder until eBay API token wiring is done
+  // Return same shape frontend expects
+  const mock = {
+    success: true,
+    avgSold: 12.34,
+    lowSold: 9.99,
+    highSold: 18.5,
+    comps: []
+  };
+  return ContentService
+    .createTextOutput(JSON.stringify(mock))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+        // Clean numeric calculations for totals
         function cleanPrice(priceVal) {
             if (!priceVal) return 0;
+            // Remove currency symbols, commas, and formatting
             const cleaned = priceVal.toString().replace(/[$,\s]/g, '').trim();
             const num = parseFloat(cleaned);
             return isNaN(num) ? 0 : num;
         }
+function updateEbayPortfolioStats() {
+    let totalLow = 0;
+    let totalHigh = 0;
 
-        function updateEbayPortfolioStats() {
-            let totalLow = 0;
-            let totalHigh = 0;
+    Object.values(ebayValueCache).forEach(v => {
+        const qty = Number(v.qty || 1);
+        totalLow += Number(v.low || 0) * qty;
+        totalHigh += Number(v.high || 0) * qty;
+    });
 
-            Object.values(ebayValueCache).forEach(v => {
-                const qty = Number(v.qty || 1);
-                totalLow += Number(v.low || 0) * qty;
-                totalHigh += Number(v.high || 0) * qty;
-            });
+    const lowEl = document.getElementById('stat-ebay-lowest-val');
+    const highEl = document.getElementById('stat-ebay-highest-val');
+    const avgEl = document.getElementById('stat-ebay-avg-val');
 
-            const lowEl = document.getElementById('stat-ebay-lowest-val');
-            const highEl = document.getElementById('stat-ebay-highest-val');
-            const avgEl = document.getElementById('stat-ebay-avg-val');
+    if (lowEl) lowEl.textContent = `$${totalLow.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    if (highEl) highEl.textContent = `$${totalHigh.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    if (avgEl) avgEl.textContent = `$${((totalLow + totalHigh)/2).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+}
+        // Build dynamic game filter elements
+        function renderGameFilters() {
+            const container = document.getElementById('game-filter-container');
+            if (!container) return;
+            container.innerHTML = '';
 
-            if (lowEl) lowEl.textContent = formatUSD(totalLow);
-            if (highEl) highEl.textContent = formatUSD(totalHigh);
-            if (avgEl) avgEl.textContent = formatUSD((totalLow + totalHigh) / 2);
-        }
-
-        async function syncDatabase() {
-            const rawSheetUrl = localStorage.getItem('tcg_sheet_url');
-            if (!rawSheetUrl) return;
-
-            try {
-                const idMatch = rawSheetUrl.match(/\/d\/([^\/]+)/);
-                if (!idMatch) throw new Error("Invalid Google Sheet URL: cannot extract sheet ID.");
-
-                const sheetId = idMatch[1];
-                const gid = rawSheetUrl.match(/gid=([0-9]+)/)?.[1] || "0";
-                const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
-
-                const response = await fetch(csvUrl, { cache: "no-store" });
-                if (!response.ok) throw new Error(`Fetch failed: HTTP ${response.status}`);
-
-                const csvData = await response.text();
-                if (!csvData || !csvData.trim()) throw new Error("Empty CSV returned.");
-                if (csvData.trim().startsWith("<")) throw new Error("Got HTML instead of CSV. Check sheet sharing.");
-
-                parseSpreadsheetCSV(csvData);
-                startEbayProgress(getEbayTrackableCount());
-            } catch (err) {
-                console.error(err);
+            // Get unique, non-empty, sorted game values
+            const uniqueGames = [...new Set(cardDatabase.map(card => card.game).filter(g => g && g.trim() !== ""))].sort();
+            
+            // If active filter is no longer in data, fall back to ALL
+            if (activeGameFilter !== 'ALL' && !uniqueGames.includes(activeGameFilter)) {
+                activeGameFilter = 'ALL';
             }
-        }
 
-        function parseSpreadsheetCSV(text) {
-            const lines = [];
-            let row = [""];
-            let inQuotes = false;
+            // Create ALL filter button
+            const allBtn = document.createElement('button');
+            allBtn.id = 'filter-game-ALL';
+            allBtn.onclick = () => setGameFilter('ALL');
+            if (activeGameFilter === 'ALL') {
+                allBtn.className = "flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition uppercase";
+            } else {
+                allBtn.className = "flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition uppercase";
+            }
+            allBtn.textContent = 'ALL';
+            container.appendChild(allBtn);
 
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const next = text[i + 1];
-
-                if (char === '"') {
-                    if (inQuotes && next === '"') {
-                        row[row.length - 1] += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    row.push('');
-                } else if ((char === '\n' || char === '\r') && !inQuotes) {
-                    if (char === '\r' && next === '\n') i++;
-                    lines.push(row);
-                    row = [''];
+            // Create dynamic game filter buttons
+            uniqueGames.forEach(game => {
+                const btn = document.createElement('button');
+                const safeId = `filter-game-${game.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                btn.id = safeId;
+                btn.onclick = () => setGameFilter(game);
+                
+                if (activeGameFilter === game) {
+                    btn.className = "flex-shrink-0 px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs tracking-wider transition uppercase";
                 } else {
-                    row[row.length - 1] += char;
+                    btn.className = "flex-shrink-0 px-4 py-2 bg-slate-900 border border-slate-800/80 text-slate-300 hover:text-white font-semibold rounded-lg text-xs tracking-wider transition uppercase";
                 }
-            }
-            if (row.length > 1 || row[0] !== '') lines.push(row);
-
-            if (lines.length < 2) {
-                cardDatabase = [];
-                filteredDatabase = [];
-                renderGrid();
-                return;
-            }
-
-            const headers = lines[0].map(h => (h || '').trim().toUpperCase());
-
-            const idxGame = headers.findIndex(h => h.includes('GAME') || h.includes('CATEGORY') || h.includes('UNIVERSE'));
-            const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME') || h.includes('ITEM'));
-            const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER') || h.includes('SCALE'));
-            const idxRarity = headers.findIndex(h => h.includes('RARITY') || h.includes('GRADE'));
-            const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
-            const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
-            const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
-            const idxSource = headers.findIndex(h => h.includes('SOURCE'));
-            const idxDate = headers.findIndex(h => h.includes('DATE'));
-            const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE') || h.includes('CONDITION'));
-            const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE') || h.includes('PHOTO'));
-            const idxEbay = headers.findIndex(h => h.includes('EBAY'));
-
-            if (idxName === -1) {
-                cardDatabase = [];
-                filteredDatabase = [];
-                renderGrid();
-                return;
-            }
-
-            const parsed = [];
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i];
-                if (!line || line.length === 0) continue;
-
-                const name = (line[idxName] || '').trim();
-                if (!name) continue;
-
-                const qty = parseInt((line[idxQty] || '1').toString().trim(), 10);
-                parsed.push({
-                    game: idxGame !== -1 ? (line[idxGame] || 'Other').trim() : 'Other',
-                    name,
-                    code: idxCode !== -1 ? (line[idxCode] || '').trim() : '',
-                    rarity: idxRarity !== -1 ? (line[idxRarity] || '').trim() : '',
-                    qty: Number.isFinite(qty) && qty > 0 ? qty : 1,
-                    lowest_price: idxLowest !== -1 ? (line[idxLowest] || '').trim() : '',
-                    highest_price: idxHighest !== -1 ? (line[idxHighest] || '').trim() : '',
-                    source: idxSource !== -1 ? (line[idxSource] || '').trim() : '',
-                    date: idxDate !== -1 ? (line[idxDate] || '').trim() : '',
-                    remark: idxRemark !== -1 ? (line[idxRemark] || '').trim() : '',
-                    image: idxImage !== -1 ? (line[idxImage] || '').trim() : '',
-                    ebay_search_term: idxEbay !== -1 ? (line[idxEbay] || '').trim() : ''
-                });
-            }
-
-            cardDatabase = parsed;
-            renderGameFilters();
-            applyFilters();
+                btn.textContent = game;
+                container.appendChild(btn);
+            });
         }
 
-        function renderGameFilters() {}
-        function renderGrid() {}
-
+        // Filter card layout grid & sum portfolio statistics
         function applyFilters() {
-            const queryEl = document.getElementById('search-input');
-            const query = (queryEl ? queryEl.value : '').toLowerCase().trim();
-
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            // Apply filtering logic
             filteredDatabase = cardDatabase.filter(card => {
-                const matchesSearch =
-                    (card.name || '').toLowerCase().includes(query) ||
-                    (card.code || '').toLowerCase().includes(query) ||
-                    (card.rarity || '').toLowerCase().includes(query) ||
-                    (card.game || '').toLowerCase().includes(query) ||
-                    (card.remark || '').toLowerCase().includes(query);
+                const matchesSearch = 
+                    card.name.toLowerCase().includes(query) || 
+                    card.code.toLowerCase().includes(query) ||
+                    card.rarity.toLowerCase().includes(query) ||
+                    card.game.toLowerCase().includes(query) ||
+                    card.remark.toLowerCase().includes(query);
 
                 if (activeGameFilter === 'ALL') return matchesSearch;
                 return matchesSearch && (card.game === activeGameFilter);
             });
 
+            // Calculate valuation totals based on Qty * low/high estimations
             let totalCardsCount = 0;
-            const uniqueCardsCount = cardDatabase.length;
+            let uniqueCardsCount = cardDatabase.length;
             let totalLowestValue = 0;
             let totalHighestValue = 0;
 
             cardDatabase.forEach(card => {
-                totalCardsCount += Number(card.qty || 0);
+                totalCardsCount += card.qty;
+                
                 const low = cleanPrice(card.lowest_price);
                 const high = cleanPrice(card.highest_price);
-                totalLowestValue += (low * Number(card.qty || 1));
-                totalHighestValue += (high * Number(card.qty || 1));
+
+                totalLowestValue += (low * card.qty);
+                totalHighestValue += (high * card.qty);
             });
 
             const midAvgVal = (totalLowestValue + totalHighestValue) / 2;
 
-            const totalEl = document.getElementById('stat-total-cards');
-            const uniqueEl = document.getElementById('stat-unique-cards');
-            const lowEl = document.getElementById('stat-lowest-val');
-            const highEl = document.getElementById('stat-highest-val');
-            const avgEl = document.getElementById('stat-avg-val');
-
-            if (totalEl) totalEl.textContent = totalCardsCount;
-            if (uniqueEl) uniqueEl.textContent = uniqueCardsCount;
-            if (lowEl) lowEl.textContent = formatTHB(totalLowestValue);
-            if (highEl) highEl.textContent = formatTHB(totalHighestValue);
-            if (avgEl) avgEl.textContent = formatTHB(midAvgVal);
+            // Render stats block
+            document.getElementById('stat-total-cards').textContent = totalCardsCount;
+            document.getElementById('stat-unique-cards').textContent = uniqueCardsCount;
+            document.getElementById('stat-lowest-val').textContent = `THB${totalLowestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+document.getElementById('stat-highest-val').textContent = `THB${totalHighestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+document.getElementById('stat-avg-val').textContent = `THB${midAvgVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
             renderGrid();
         }
-    </script>
+
+        // Set game view filter
+        function setGameFilter(gameType) {
+            activeGameFilter = gameType;
+            renderGameFilters();
+            applyFilters();
+        }
+
+        // Render current filter array into the HTML Grid
+        function renderGrid() {
+            const grid = document.getElementById('card-grid');
+            grid.innerHTML = '';
+
+            if (filteredDatabase.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-2 text-center py-12 text-slate-500">
+                        <i class="fa-solid fa-box-open text-3xl mb-3"></i>
+                        <p class="text-xs">No matching items found inside your collection.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredDatabase.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = "bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden shadow-lg hover:border-amber-500/40 transition duration-300 flex flex-col justify-between p-0";
+                
+                // Add click event except for UI buttons on the card
+                cardEl.onclick = (e) => {
+                    if (e.target.closest('.qty-btn-handler')) return;
+                    openDrawer(card);
+                };
+
+                // Formulate Price String output
+                let formattedPriceRange = "-";
+                if (card.lowest_price || card.highest_price) {
+                    const lowCleaned = cleanPrice(card.lowest_price);
+                    const highCleaned = cleanPrice(card.highest_price);
+                    
+                    if (lowCleaned && highCleaned) {
+                        formattedPriceRange = `$${lowCleaned} - $${highCleaned}`;
+                    } else {
+                        formattedPriceRange = `$${lowCleaned || highCleaned}`;
+                    }
+                }
+
+                // Handle missing image with elegant fallbacks
+                let imgBlockHTML = `
+                    <div class="w-full aspect-[3/4] bg-gradient-to-br from-slate-950 to-slate-900 flex flex-col justify-center items-center text-center p-3 relative border-b border-slate-800">
+                        <div class="absolute inset-0 bg-amber-500/5 blur-xl rounded-full"></div>
+                        <span class="text-[9px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider mb-2 font-mono">${card.game}</span>
+                        <p class="text-[11px] font-bold text-slate-200 line-clamp-2 px-1 mb-1">${card.name}</p>
+                        <p class="text-[9px] font-mono text-slate-500">${card.code}</p>
+                    </div>
+                `;
+
+                if (card.image && card.image.trim().startsWith('http')) {
+                    imgBlockHTML = `
+                        <div class="w-full aspect-[3/4] overflow-hidden relative bg-slate-950 border-b border-slate-800 flex items-center justify-center">
+                            <img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.outerHTML='<div class=\\'p-4 text-[11px] text-slate-400 text-center\\'>Image unavailable</div>'">
+                            <span class="absolute top-2 left-2 text-[8px] bg-slate-950/80 backdrop-blur-md text-amber-400 font-bold tracking-wider px-1.5 py-0.5 rounded-full border border-slate-800">${card.game}</span>
+                        </div>
+                    `;
+                }
+
+                cardEl.innerHTML = `
+                    ${imgBlockHTML}
+                    <div class="p-3 space-y-2">
+                        <div>
+                            <h4 class="font-bold text-slate-200 text-xs truncate leading-tight">${card.name}</h4>
+                            <p class="text-[9px] font-mono text-slate-500 truncate mt-0.5">${card.code || 'Various Set'}</p>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-semibold text-emerald-400">${formattedPriceRange}</span>
+                            <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg qty-btn-handler">
+                                <span class="text-[10px] text-slate-400">x</span>
+                                <strong class="text-slate-100 font-bold">${card.qty}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(cardEl);
+            });
+        }
+
+// Open Slide up Drawer with Card/Item Info
+function openDrawer(card) {
+    currentlySelectedCard = card;
+
+    const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+
+    setEl('drawer-game', card.game);
+    setEl('drawer-rarity', card.rarity || 'Item');
+    setEl('drawer-name', card.name);
+    setEl('drawer-code', card.code || "No Set/Code Assigned");
+    setEl('drawer-qty', card.qty);
+
+    const lowEl = document.getElementById('drawer-lowest-price');
+    if (lowEl) {
+        lowEl.textContent = card.lowest_price
+            ? `$${cleanPrice(card.lowest_price).toFixed(2)}`
+            : "$0.00";
+    }
+
+    const highEl = document.getElementById('drawer-highest-price');
+    if (highEl) {
+        highEl.textContent = card.highest_price
+            ? `$${cleanPrice(card.highest_price).toFixed(2)}`
+            : "$0.00";
+    }
+
+    setEl('drawer-source', card.source || "-");
+    setEl('drawer-date', card.date || "-");
+    setEl('drawer-remark', card.remark || "No conditional notes saved for this item.");
+
+    const resultsEl = document.getElementById('pricing-results');
+    if (resultsEl) {
+        resultsEl.classList.add('hidden');
+        resultsEl.innerHTML = '';
+    }
+
+    const sourcesEl = document.getElementById('pricing-sources');
+    if (sourcesEl) {
+        sourcesEl.classList.add('hidden');
+        const sourceList = document.getElementById('sources-list');
+        if (sourceList) sourceList.innerHTML = '';
+    }
+
+    const btnEl = document.getElementById('fetch-price-btn');
+    if (btnEl) {
+        btnEl.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+        btnEl.disabled = false;
+    }
+
+    const container = document.getElementById('drawer-image-container');
+    if (container) {
+        if (card.image && card.image.trim().startsWith('http')) {
+            container.innerHTML = `<img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover rounded-xl">`;
+        } else {
+            container.innerHTML = `
+                <div class="text-center p-2 text-slate-500">
+                    <i class="fa-solid fa-rectangle-ad text-2xl mb-1 block"></i>
+                    <span class="text-[8px] uppercase font-bold text-slate-400">No Photo</span>
+                </div>
+            `;
+        }
+    }
+
+       const trackingTerm = (
+        card.ebaySearchTerm ||
+        card.ebay_search_term ||
+        card['ebay search term'] ||
+        card.code ||
+        card.name ||
+        ''
+    ).trim();
+
+    const statusEl = document.getElementById('ebay-connection-status');
+    if (statusEl) statusEl.textContent = 'Connecting...';
+
+    if (trackingTerm && typeof loadLiveEbayData === 'function') {
+        loadLiveEbayData(trackingTerm);
+    } else {
+        if (statusEl) statusEl.textContent = 'Offline';
+        if (resultsEl) {
+            resultsEl.classList.remove('hidden');
+            resultsEl.innerHTML = `<div class="text-yellow-300 text-sm">No search term available for this item.</div>`;
+        }
+    }
+
+    document.getElementById('backdrop-drawer').classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('backdrop-drawer').classList.add('opacity-100');
+        document.getElementById('spec-drawer').classList.add('active');
+    }, 10);
+}
+        // Close drawer panel
+        function closeDrawer() {
+            document.getElementById('backdrop-drawer').classList.remove('opacity-100');
+            document.getElementById('spec-drawer').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('backdrop-drawer').classList.add('hidden');
+            }, 300);
+        }
+
+        // Open modal for manual card input
+        function openManualAdd() {
+            document.getElementById('manual-add-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('manual-add-modal').querySelector('.drawer-slide-up').classList.add('active');
+            }, 10);
+            
+            // Clear form fields
+            document.getElementById('manual-input-game').value = 'Pokémon';
+            document.getElementById('manual-input-code').value = '';
+            document.getElementById('manual-input-name').value = '';
+            document.getElementById('manual-input-rarity').value = '';
+            document.getElementById('manual-input-qty').value = '1';
+            document.getElementById('manual-input-lowest').value = '';
+            document.getElementById('manual-input-highest').value = '';
+            document.getElementById('manual-input-source').value = '';
+            document.getElementById('manual-input-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('manual-input-image').value = '';
+            document.getElementById('manual-input-remark').value = '';
+            document.getElementById('manual-input-custom-game-container').classList.add('hidden');
+        }
+
+        // Close manual add modal
+        function cancelManualAdd() {
+            const modal = document.getElementById('manual-add-modal');
+            modal.querySelector('.drawer-slide-up').classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 350);
+        }
+
+        // Handle category selection change for custom category input
+        function handleCategorySelectionChange() {
+            const gameSelect = document.getElementById('manual-input-game');
+            const customContainer = document.getElementById('manual-input-custom-game-container');
+            
+            if (gameSelect && gameSelect.value === 'CUSTOM') {
+                customContainer.classList.remove('hidden');
+            } else if (customContainer) {
+                customContainer.classList.add('hidden');
+            }
+        }
+
+        // Save manually added card to sheet
+        async function executeSaveManualCard(event) {
+            event.preventDefault();
+            
+            const game = document.getElementById('manual-input-game').value === 'CUSTOM' 
+                ? document.getElementById('manual-input-custom-game').value 
+                : document.getElementById('manual-input-game').value;
+            
+            const cardData = {
+                game: game,
+                name: document.getElementById('manual-input-name').value,
+                code: document.getElementById('manual-input-code').value,
+                rarity: document.getElementById('manual-input-rarity').value,
+                qty: document.getElementById('manual-input-qty').value,
+                lowest_price: document.getElementById('manual-input-lowest').value,
+                highest_price: document.getElementById('manual-input-highest').value,
+                source: document.getElementById('manual-input-source').value,
+                date: document.getElementById('manual-input-date').value,
+                image: document.getElementById('manual-input-image').value,
+                remark: document.getElementById('manual-input-remark').value
+            };
+
+            const scriptUrl = localStorage.getItem('tcg_script_url');
+            if (!scriptUrl) {
+                triggerToast("Error", "Script URL not configured. Check Database Settings.", "error");
+                return;
+            }
+
+            document.getElementById('manual-save-btn').disabled = true;
+            document.getElementById('manual-save-btn').innerHTML = '<i class="fa-solid fa-hourglass-end animate-spin"></i> Saving...';
+
+            try {
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cardData)
+                });
+
+                triggerToast("Success", "Card saved! Syncing collection...", "success");
+                cancelManualAdd();
+                
+                setTimeout(() => {
+                    syncDatabase();
+                }, 1500);
+            } catch (err) {
+                triggerToast("Error", `Save failed: ${err.message}`, "error");
+                document.getElementById('manual-save-btn').disabled = false;
+                document.getElementById('manual-save-btn').innerHTML = 'SAVE TO SHEET';
+            }
+        }
+
+     // Toggle image help modal
+function toggleImageHelp() {
+    const modal = document.getElementById('image-help-modal');
+    if (!modal) return;
+    modal.classList.toggle('hidden');
+}
+
+
+        // Live Market Price Fetching Engine
+        async function fetchLiveMarketPrices() {
+            if (!currentlySelectedCard) {
+                triggerToast("Error", "No card selected", "error");
+                return;
+            }
+
+            const card = currentlySelectedCard;
+            const searchQuery = `${card.name} ${card.code} price`;
+            
+            const btn = document.getElementById('fetch-price-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Searching market data...';
+
+            try {
+                // Use a simple web search via Google's public search (non-API approach)
+                // Since we need to bypass CORS, we'll construct search intent results
+                const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' price')}&hl=en`;
+                
+                // For a true implementation, you would use:
+                // Option 1: Your own backend proxy endpoint
+                // Option 2: A free API service like serpapi.com (100 calls/month free)
+                // For now, we'll display helpful guidance
+                
+                const resultsDiv = document.getElementById('pricing-results');
+                const sourcesList = document.getElementById('sources-list');
+                
+                // Display search guidance
+                resultsDiv.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="text-emerald-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> Search Tips
+                        </p>
+                        <p>Live market price fetching requires API access. Consider:</p>
+                        <ul class="list-disc list-inside text-slate-300 space-y-1 ml-2">
+                            <li>Use <strong>TCGPlayer</strong> or <strong>eBay</strong> directly for ${card.name}</li>
+                            <li>Search "<strong>${card.name} ${card.code}</strong>" on your preferred platform</li>
+                            <li>Compare multiple sources for accurate pricing</li>
+                        </ul>
+                    </div>
+                `;
+                
+                sourcesList.innerHTML = `
+                    <li><a href="${googleSearchUrl}" target="_blank" class="text-emerald-400 hover:underline">Google Search: ${card.name}</a></li>
+                    <li><a href="https://www.tcgplayer.com/search/product/all?q=${encodeURIComponent(card.name)}" target="_blank" class="text-emerald-400 hover:underline">TCGPlayer</a></li>
+                    <li><a href="https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.name)}" target="_blank" class="text-emerald-400 hover:underline">eBay</a></li>
+                `;
+
+                resultsDiv.classList.remove('hidden');
+                document.getElementById('pricing-sources').classList.remove('hidden');
+
+                triggerToast("Quick Links Ready", "See search suggestions below", "info");
+
+            } catch (err) {
+                triggerToast("Error", `Search failed: ${err.message}`, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices';
+            }
+        }
+    async function loadLiveEbayData(searchTerm) {
+  const statusEl = document.getElementById('ebay-connection-status');
+  const btn = document.getElementById('fetch-price-btn');
+  const panel = document.getElementById('pricing-results');
+
+  const setStatus = (online, text) => {
+    if (!statusEl) return;
+    statusEl.textContent = text || (online ? "Online" : "Offline");
+    statusEl.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400');
+    statusEl.classList.add(online ? 'text-green-400' : 'text-red-400');
+  };
+
+  try {
+    const scriptUrl = (localStorage.getItem('tcg_script_url') || '').trim();
+    if (!scriptUrl) throw new Error('Missing tcg_script_url in localStorage');
+
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking eBay...`;
+    }
+
+    const url = `${scriptUrl}?action=ebay_price_lookup&query=${encodeURIComponent(searchTerm || '')}`;
+    const response = await fetch(url, { method: 'GET', cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const raw = await response.text();
+    let data;
+    try { data = JSON.parse(raw); console.log('eBay raw data:', data) } catch { throw new Error('Invalid JSON response'); }
+
+    let low = 0, avg = 0, high = 0;
+
+    // Case A: backend returns listings array
+    if (Array.isArray(data)) {
+      const prices = data
+        .map(x => Number(x?.price?.value ?? x?.price ?? 0))
+        .filter(n => Number.isFinite(n) && n > 0);
+
+      if (!prices.length) throw new Error('No valid listing prices returned');
+      low = Math.min(...prices);
+      high = Math.max(...prices);
+      avg = prices.reduce((a,b) => a+b, 0) / prices.length;
+    } else {
+      // Case B: backend returns stats object
+if (data.success === false) throw new Error(data?.message || 'Lookup unsuccessful');
+
+const toNum = (v) => {
+  if (v === null || v === undefined) return 0;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+  const cleaned = String(v).replace(/[^0-9.]/g, '');
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : 0;
+};
+
+avg  = toNum(data.avgSold ?? data.average ?? data.avg ?? data.mean ?? data.mid);
+low  = toNum(data.lowSold ?? data.low ?? data.min ?? data.floor);
+high = toNum(data.highSold ?? data.high ?? data.max ?? data.ceil);
+
+// fallback: build from comps[]
+if (!(low > 0 || avg > 0 || high > 0)) {
+  throw new Error('No usable price fields in response');
+}
+    }
+
+    const key = (currentlySelectedCard?.code || currentlySelectedCard?.name || searchTerm || '').trim();
+    if (key) {
+      ebayValueCache[key] = {
+        low, high, avg,
+        qty: Number(currentlySelectedCard?.qty || 1)
+      };
+      updateEbayPortfolioStats();
+    }
+
+    if (panel) {
+      panel.classList.remove('hidden');
+      panel.innerHTML = `
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-slate-800 rounded p-2"><div class="text-xs text-slate-400">Low</div><div class="font-semibold">$${low.toFixed(2)}</div></div>
+          <div class="bg-slate-800 rounded p-2"><div class="text-xs text-slate-400">Avg</div><div class="font-semibold">$${avg.toFixed(2)}</div></div>
+          <div class="bg-slate-800 rounded p-2"><div class="text-xs text-slate-400">High</div><div class="font-semibold">$${high.toFixed(2)}</div></div>
+        </div>`;
+    }
+
+    setStatus(true, 'Online');
+  } catch (err) {
+    console.error('eBay lookup failed:', err);
+    setStatus(false, 'Offline');
+    if (panel) {
+      panel.classList.remove('hidden');
+      panel.innerHTML = `<div class="text-sm text-red-300 bg-red-950/40 border border-red-800 rounded p-2">Live lookup failed: ${err.message}</div>`;
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
+    }
+  }
+}
+</script>
 </body>
 </html>
