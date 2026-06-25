@@ -477,6 +477,7 @@
         const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1aJttbWf_pojHaxK2N5weJRFZOWHxGbgZkskuYUsh2u4/edit?gid=0#gid=0";
         const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_lmmv_FWg44kA27IPxWgO61Xeo5MUThm1fnoJxvYq0SxDiAYIbayoE-jgueSUqa5Z/exec";
         const SHEET_FETCH_TIMEOUT_MS = 12000;
+        const MIN_SHEET_FILE_ID_LENGTH = 20;
 
         // Global State variables
         let cardDatabase = [];
@@ -556,7 +557,7 @@
             const fileId = idMatch[1];
             const gid = gidMatch ? gidMatch[1] : '0';
 
-            if (!/^[A-Za-z0-9_-]{20,}$/.test(fileId) || !/^[0-9]+$/.test(gid)) {
+            if (!new RegExp(`^[A-Za-z0-9_-]{${MIN_SHEET_FILE_ID_LENGTH},}$`).test(fileId) || !/^[0-9]+$/.test(gid)) {
                 return null;
             }
 
@@ -660,7 +661,7 @@
                 }
 
                 if (!csvData || !csvData.trim()) {
-                    throw lastError || new Error(`Unable to fetch spreadsheet data after trying ${fetchUrls.length} endpoints. Verify the sheet URL and sharing settings.`);
+                    throw new Error(`Failed after trying ${fetchUrls.length} endpoints: ${(lastError && lastError.message) || 'Verify the sheet URL and sharing settings.'}`);
                 }
 
                 parseSpreadsheetCSV(csvData);
