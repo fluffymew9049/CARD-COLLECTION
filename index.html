@@ -724,87 +724,95 @@ function parseSpreadsheetCSV(text) {
 
         // Parser mapping exactly to your 11 columns
         function parseSpreadsheetCSV(text) {
-            const lines = [];
-            let row = [""];
-            let inQuotes = false;
+    const lines = [];
+    let row = [""];
+    let inQuotes = false;
 
-            // Safe state machine parser to handle nested commas within remarks or names
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const nextChar = text[i+1];
-                if (char === '"') {
-                    if (inQuotes && nextChar === '"') {
-                        row[row.length - 1] += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    row.push('');
-                } else if ((char === '\r' || char === '\n') && !inQuotes) {
-                    if (char === '\r' && nextChar === '\n') {
-                        i++;
-                    }
-                    lines.push(row);
-                    row = [''];
-                } else {
-                    row[row.length - 1] += char;
-                }
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+            if (inQuotes && next === '"') {
+                row[row.length - 1] += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
             }
-            if (row.length > 1 || row[0] !== '') {
-                lines.push(row);
-            }
-
-            if (lines.length < 2) {
-                logDiagnostic("No rows found inside spreadsheet CSV dataset.");
-                return;
-            }
-
-            const headers = lines[0].map(h => h.trim().toUpperCase());
-            logDiagnostic(`Headers detected: ${JSON.stringify(headers)}`);
-
-            // Find indexes for mapping
-            const idxGame = headers.findIndex(h => h.includes('GAME'));
-            const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME'));
-            const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER'));
-            const idxRarity = headers.findIndex(h => h.includes('RARITY'));
-            const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
-            const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
-            const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
-            const idxSource = headers.findIndex(h => h.includes('SOURCE'));
-            const idxDate = headers.findIndex(h => h.includes('DATE'));
-            const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE'));
-            const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE'));
-
-            const parsedCards = [];
-
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i];
-                if (line.length <= 1 || !line[idxName]) continue; // skip empty rows
-
-                const quantityVal = parseInt(line[idxQty]) || 1;
-
-                parsedCards.push({
-                    game: idxGame !== -1 ? (line[idxGame] || "Other").trim() : "Other",
-                    name: idxName !== -1 ? line[idxName] || "" : "",
-                    code: idxCode !== -1 ? line[idxCode] || "" : "",
-                    rarity: idxRarity !== -1 ? line[idxRarity] || "" : "",
-                    qty: quantityVal,
-                    lowest_price: idxLowest !== -1 ? line[idxLowest] || "" : "",
-                    highest_price: idxHighest !== -1 ? line[idxHighest] || "" : "",
-                    source: idxSource !== -1 ? line[idxSource] || "" : "",
-                    date: idxDate !== -1 ? line[idxDate] || "" : "",
-                    remark: idxRemark !== -1 ? line[idxRemark] || "" : "",
-                    image: idxImage !== -1 ? line[idxImage] || "" : ""
-                });
-            }
-
-            cardDatabase = parsedCards;
-            
-            // Build dynamic game filters automatically from unique Games
-            renderGameFilters();
-            applyFilters();
+        } else if (char === ',' && !inQuotes) {
+            row.push('');
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+            if (char === '\r' && next === '\n') i++;
+            lines.push(row);
+            row = [''];
+        } else {
+            row[row.length - 1] += char;
         }
+    }
+    if (row.length > 1 || row[0] !== '') lines.push(row);
+
+    if (lines.length < 2) {
+        cardDatabase = [];
+        filteredDatabase = [];
+        renderGrid();
+        logDiagnostic("CSV parsed but no data rows found.");
+        return;
+    }
+
+    const headers = lines[0].map(h => (h || '').trim().toUpperCase());
+    logDiagnostic(`Detected headers: ${JSON.stringify(headers)}`);
+
+    const idxGame = headers.findIndex(h => h.includes('GAME') || h.includes('CATEGORY') || h.includes('UNIVERSE'));
+    const idxName = headers.findIndex(h => h.includes('CHARACTER') || h.includes('NAME') || h.includes('ITEM'));
+    const idxCode = headers.findIndex(h => h.includes('SET') || h.includes('CODE') || h.includes('NUMBER') || h.includes('SCALE'));
+    const idxRarity = headers.findIndex(h => h.includes('RARITY') || h.includes('GRADE'));
+    const idxQty = headers.findIndex(h => h.includes('QTY') || h.includes('QUANTITY'));
+    const idxLowest = headers.findIndex(h => h.includes('LOWEST') || h.includes('LOW'));
+    const idxHighest = headers.findIndex(h => h.includes('HIGHEST') || h.includes('HIGH'));
+    const idxSource = headers.findIndex(h => h.includes('SOURCE'));
+    const idxDate = headers.findIndex(h => h.includes('DATE'));
+    const idxRemark = headers.findIndex(h => h.includes('REMARK') || h.includes('NOTE') || h.includes('CONDITION'));
+    const idxImage = headers.findIndex(h => h.includes('IMAGE') || h.includes('PICTURE') || h.includes('PHOTO'));
+    const idxEbay = headers.findIndex(h => h.includes('EBAY'));
+
+    if (idxName === -1) {
+        cardDatabase = [];
+        filteredDatabase = [];
+        renderGrid();
+        logDiagnostic("No NAME/CHARACTER/ITEM column found. Cannot parse rows.");
+        return;
+    }
+
+    const parsed = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line || line.length === 0) continue;
+
+        const name = (line[idxName] || '').trim();
+        if (!name) continue;
+
+        const qty = parseInt((line[idxQty] || '1').toString().trim(), 10);
+        parsed.push({
+            game: idxGame !== -1 ? (line[idxGame] || 'Other').trim() : 'Other',
+            name,
+            code: idxCode !== -1 ? (line[idxCode] || '').trim() : '',
+            rarity: idxRarity !== -1 ? (line[idxRarity] || '').trim() : '',
+            qty: Number.isFinite(qty) && qty > 0 ? qty : 1,
+            lowest_price: idxLowest !== -1 ? (line[idxLowest] || '').trim() : '',
+            highest_price: idxHighest !== -1 ? (line[idxHighest] || '').trim() : '',
+            source: idxSource !== -1 ? (line[idxSource] || '').trim() : '',
+            date: idxDate !== -1 ? (line[idxDate] || '').trim() : '',
+            remark: idxRemark !== -1 ? (line[idxRemark] || '').trim() : '',
+            image: idxImage !== -1 ? (line[idxImage] || '').trim() : '',
+            ebay_search_term: idxEbay !== -1 ? (line[idxEbay] || '').trim() : ''
+        });
+    }
+
+    cardDatabase = parsed;
+    renderGameFilters();
+    applyFilters();
+}
 
         // Clean numeric calculations for totals
         function cleanPrice(priceVal) {
