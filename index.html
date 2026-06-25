@@ -556,7 +556,7 @@
             const fileId = idMatch[1];
             const gid = gidMatch ? gidMatch[1] : '0';
 
-            if (!/^[^\s/?#&]+$/.test(fileId) || !/^[0-9]+$/.test(gid)) {
+            if (!/^[A-Za-z0-9_-]{20,}$/.test(fileId) || !/^[0-9]+$/.test(gid)) {
                 return null;
             }
 
@@ -589,8 +589,10 @@
             if (!sheetInfo) return urls;
 
             const { fileId, gid } = sheetInfo;
-            urls.push(`https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv&gid=${gid}`);
-            urls.push(`https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&gid=${gid}`);
+            const encodedFileId = encodeURIComponent(fileId);
+            const encodedGid = encodeURIComponent(gid);
+            urls.push(`https://docs.google.com/spreadsheets/d/${encodedFileId}/export?format=csv&gid=${encodedGid}`);
+            urls.push(`https://docs.google.com/spreadsheets/d/${encodedFileId}/gviz/tq?tqx=out:csv&gid=${encodedGid}`);
 
             return [...new Set(urls)];
         }
@@ -636,6 +638,10 @@
 
             try {
                 const fetchUrls = buildSheetFetchUrls(rawSheetUrl);
+                if (!fetchUrls.length) {
+                    throw new Error('Invalid or unsupported spreadsheet URL format.');
+                }
+
                 let csvData = '';
                 let lastError = null;
 
@@ -646,7 +652,7 @@
                         if (csvData && csvData.trim()) {
                             break;
                         }
-                        throw new Error('Spreadsheet response was empty. Verify the sheet is publicly accessible.');
+                        throw new Error('Spreadsheet response was empty. Verify the URL, gid parameter, and sharing settings.');
                     } catch (error) {
                         lastError = error;
                         logDiagnostic(`Sheet stream failed: ${error.message}`);
