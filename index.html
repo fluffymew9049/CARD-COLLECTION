@@ -612,6 +612,7 @@ if (scriptInput) scriptInput.value = localStorage.getItem('tcg_script_url') || "
         if (csvData.trim().startsWith("<")) throw new Error("Got HTML instead of CSV. Check sheet sharing.");
 
         parseSpreadsheetCSV(csvData);
+preloadEbayForAllCards();
 startEbayProgress(getEbayTrackableCount());
         
         if (!cardDatabase || cardDatabase.length === 0) {
@@ -1298,9 +1299,78 @@ if (!(low > 0 || avg > 0 || high > 0)) {
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-circle-nodes animate-pulse"></i> Fetch Live Market Prices`;
   }
-  tickEbayProgress();
 }
   }
+async function loadLiveEbayDataForCard(card, searchTerm) {
+  const scriptUrl = (localStorage.getItem('tcg_script_url') || '').trim();
+  if (!scriptUrl) throw new Error('Missing tcg_script_url');
+
+  const url = `${scriptUrl}?action=ebay_price_lookup&query=${encodeURIComponent(searchTerm)}`;
+  const response = await fetch(url, { method: 'GET', cache: 'no-store' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const raw = await response.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error('Invalid JSON response'); }
+
+  const toNum = (v) => {
+    if (v == null) return 0;
+    if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+    const n = Number(String(v).replace(/[^0-9.]/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  let low = 0, avg = 0, high = 0;
+
+  if (Array.isArray(data)) {
+    const prices = data
+      .map(x => Number(x?.price?.value ?? x?.price ?? 0))
+      .filter(n => Number.isFinite(n) && n > 0);
+    if (!prices.length) throw new Error('No valid listing prices');
+    low = Math.min(...prices);
+    high = Math.max(...prices);
+    avg = prices.reduce((a,b) => a + b, 0) / prices.length;
+  } else {
+    if (data.success === false) throw new Error(data?.message || 'Lookup unsuccessful');
+    avg  = toNum(data.avgSold ?? data.average ?? data.avg ?? data.mean ?? data.mid);
+    low  = toNum(data.lowSold ?? data.low ?? data.min ?? data.floor);
+    high = toNum(data.highSold ?? data.high ?? data.max ?? data.ceil);
+    if (!(low > 0 || avg > 0 || high > 0)) throw new Error('No usable price fields');
+  }
+
+  const key = (card?.code || card?.name || searchTerm || '').trim();
+  if (key) {
+    ebayValueCache[key] = { low, high, avg, qty: Number(card?.qty || 1) };
+    updateEbayPortfolioStats();
+  }
+}
+
+async function preloadEbayForAllCards() {
+  const items = cardDatabase.filter(card =>
+    (card.ebaySearchTerm || card.ebay_search_term || card['ebay search term'] || card.code || card.name || '').trim() !== ''
+  );
+
+  startEbayProgress(items.length);
+
+  for (const card of items) {
+    const term = (card.ebaySearchTerm || card.ebay_search_term || card['ebay search term'] || `${card.name || ''} ${card.code || ''}`).trim();
+    if (!term) {
+      tickEbayProgress();
+      continue;
+    }
+
+    try {
+      await loadLiveEbayDataForCard(card, term);
+    } catch (e) {
+      console.warn('Preload failed for', card?.name || term, e);
+    } finally {
+      tickEbayProgress();
+    }
+
+    await new Promise(r => setTimeout(r, 250));
+  }
+}
+        
 </script>
 </body>
 </html>
